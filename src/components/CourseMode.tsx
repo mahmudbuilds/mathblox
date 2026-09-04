@@ -7,9 +7,13 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeft,
+  Zap,
+  Flame,
+  RotateCcw,
+  Trophy,
 } from 'lucide-react';
-import type { UserProfile, Question } from '../types';
-import { TABLE_METADATA, generateQuestion } from '../services/multiplicationData';
+import type { UserProfile } from '../types';
+import { TABLE_METADATA, generateDistractors } from '../services/multiplicationData';
 import { soundService } from '../services/sound';
 
 interface CourseModeProps {
@@ -29,7 +33,7 @@ const COURSE_PHASES: CoursePhase[] = [
   {
     phaseNumber: 1,
     title: 'Stage 1: The Easy Launchers',
-    subtitle: 'Learn the mirror rule, doubling numbers, and adding zeros!',
+    subtitle: 'Master the mirror rule, doubling numbers, and pasting zeros!',
     color: 'from-blue-600 to-indigo-600 border-blue-400',
     tables: [1, 2, 10],
   },
@@ -43,98 +47,235 @@ const COURSE_PHASES: CoursePhase[] = [
   {
     phaseNumber: 3,
     title: 'Stage 3: The Secret Magicians',
-    subtitle: 'Skip counting chants, double-doubles, and 9s finger trick!',
+    subtitle: 'Double-doubles, 3s tri-force, and the 9s finger trick!',
     color: 'from-amber-600 to-orange-600 border-amber-400',
     tables: [3, 4, 9],
   },
   {
     phaseNumber: 4,
     title: 'Stage 4: The Titan Tables',
-    subtitle: 'Catchy rhymes, the 56=7×8 trick, and dozen dynamite!',
+    subtitle: 'Catchy rhymes, the 56=7×8 sequence, and dozen dynamite!',
     color: 'from-rose-600 to-purple-600 border-rose-400',
     tables: [6, 7, 8, 12],
   },
 ];
 
+interface DrillCard {
+  factor: number;
+  isRetry?: boolean;
+}
+
+interface CheckpointQuestion {
+  factor1: number;
+  factor2: number;
+  correctAnswer: number;
+  options: number[];
+  hint: string;
+}
+
 export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCourseTable }) => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [lessonStep, setLessonStep] = useState<'trick' | 'flashcards' | 'quiz' | 'certified'>('trick');
-  
-  // Flashcard state
-  const [flashcardIndex, setFlashcardIndex] = useState<number>(1); // 1 to 12
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const [lessonStep, setLessonStep] = useState<'cheat-code' | 'drill' | 'checkpoint' | 'certified'>('cheat-code');
 
-  // Mini quiz state
-  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
-  const [quizIndex, setQuizIndex] = useState<number>(0);
-  const [quizScore, setQuizScore] = useState<number>(0);
-  const [quizAnswered, setQuizAnswered] = useState<boolean>(false);
-  const [isCorrect, setIsCorrect] = useState<boolean>(false);
+  // Step 1: Interactive Block Array factor
+  const [arrayMultiplier, setArrayMultiplier] = useState<number>(4);
 
+  // Step 2: Gamified Rapid-Recall Drill State
+  const [drillQueue, setDrillQueue] = useState<DrillCard[]>([]);
+  const [currentDrillIndex, setCurrentDrillIndex] = useState<number>(0);
+  const [drillOptions, setDrillOptions] = useState<number[]>([]);
+  const [drillAnswered, setDrillAnswered] = useState<boolean>(false);
+  const [drillIsCorrect, setDrillIsCorrect] = useState<boolean>(false);
+  const [drillStreak, setDrillStreak] = useState<number>(0);
+  const [drillMasteredCount, setDrillMasteredCount] = useState<number>(0);
+  const [remediationHint, setRemediationHint] = useState<string | null>(null);
+
+  // Step 3: Checkpoint Blitz State
+  const [checkpointQuestions, setCheckpointQuestions] = useState<CheckpointQuestion[]>([]);
+  const [checkpointIndex, setCheckpointIndex] = useState<number>(0);
+  const [checkpointScore, setCheckpointScore] = useState<number>(0);
+  const [checkpointAnswered, setCheckpointAnswered] = useState<boolean>(false);
+  const [checkpointIsCorrect, setCheckpointIsCorrect] = useState<boolean>(false);
+
+  // 1. Launch a table lesson
   const startTableLesson = (tableNum: number) => {
     soundService.playClick();
     setSelectedTable(tableNum);
-    setLessonStep('trick');
-    setFlashcardIndex(1);
-    setIsFlipped(false);
+    setLessonStep('cheat-code');
+    setArrayMultiplier(Math.min(4, 12));
   };
 
-  const startFlashcards = () => {
-    soundService.playClick();
-    setLessonStep('flashcards');
-    setFlashcardIndex(1);
-    setIsFlipped(false);
+  // Helper to generate options for a drill card
+  const setupDrillQuestion = (tableNum: number, factor: number) => {
+    const correct = tableNum * factor;
+    const opts = generateDistractors(correct, tableNum, factor);
+    setDrillOptions(opts);
+    setDrillAnswered(false);
+    setRemediationHint(null);
   };
 
-  const startQuiz = () => {
+  // 2. Start the Rapid-Recall Speed Drill
+  const startDrill = () => {
     soundService.playClick();
     if (!selectedTable) return;
-    const questions: Question[] = [];
-    for (let i = 0; i < 3; i++) {
-      questions.push(generateQuestion(selectedTable));
-    }
-    setQuizQuestions(questions);
-    setQuizIndex(0);
-    setQuizScore(0);
-    setQuizAnswered(false);
-    setLessonStep('quiz');
+
+    // Build shuffled factors 1 through 12
+    const initialFactors: DrillCard[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      .sort(() => Math.random() - 0.5)
+      .map((f) => ({ factor: f }));
+
+    setDrillQueue(initialFactors);
+    setCurrentDrillIndex(0);
+    setDrillStreak(0);
+    setDrillMasteredCount(0);
+    setupDrillQuestion(selectedTable, initialFactors[0].factor);
+    setLessonStep('drill');
   };
 
-  const handleQuizAnswer = (ans: number) => {
-    if (quizAnswered) return;
-    const currentQ = quizQuestions[quizIndex];
+  // Handle drill answer click
+  const handleDrillAnswer = (selectedAns: number) => {
+    if (drillAnswered || !selectedTable) return;
+    const currentCard = drillQueue[currentDrillIndex];
+    const correct = selectedTable * currentCard.factor;
+    const isRight = selectedAns === correct;
+
+    setDrillAnswered(true);
+    setDrillIsCorrect(isRight);
+
+    if (isRight) {
+      soundService.playCorrect();
+      setDrillStreak((prev) => prev + 1);
+      setDrillMasteredCount((prev) => prev + 1);
+
+      // Auto-advance after brief delay if correct
+      setTimeout(() => {
+        advanceDrillQueue(true);
+      }, 700);
+    } else {
+      soundService.playWrong();
+      setDrillStreak(0);
+
+      // Get hint from hard facts or general trick
+      const meta = TABLE_METADATA[selectedTable];
+      const matchingHardFact = meta.hardFacts.find((h) => h.factor === currentCard.factor);
+      const hint = matchingHardFact ? matchingHardFact.hint : meta.trick;
+      setRemediationHint(hint);
+
+      // SMART ERROR LOOP-BACK: Put this missed factor back in the queue 2 cards ahead!
+      const updatedQueue = [...drillQueue];
+      const retryCard: DrillCard = { factor: currentCard.factor, isRetry: true };
+      const insertIdx = Math.min(updatedQueue.length, currentDrillIndex + 3);
+      updatedQueue.splice(insertIdx, 0, retryCard);
+      setDrillQueue(updatedQueue);
+    }
+  };
+
+  const advanceDrillQueue = (_wasCorrect: boolean) => {
+    if (!selectedTable) return;
+    const nextIdx = currentDrillIndex + 1;
+
+    if (nextIdx < drillQueue.length) {
+      setCurrentDrillIndex(nextIdx);
+      setupDrillQuestion(selectedTable, drillQueue[nextIdx].factor);
+    } else {
+      // Drill Complete!
+      soundService.playFanfare();
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+      startCheckpoint();
+    }
+  };
+
+  // 3. Start Table Boss Checkpoint Blitz (5 focused questions)
+  const startCheckpoint = () => {
+    if (!selectedTable) return;
+    soundService.playClick();
+    const meta = TABLE_METADATA[selectedTable];
+
+    // Guarantee 2 hard facts + 3 other facts
+    const questions: CheckpointQuestion[] = [];
+    const usedFactors = new Set<number>();
+
+    // Add hard facts first
+    meta.hardFacts.slice(0, 2).forEach((hf) => {
+      usedFactors.add(hf.factor);
+      questions.push({
+        factor1: selectedTable,
+        factor2: hf.factor,
+        correctAnswer: selectedTable * hf.factor,
+        options: generateDistractors(selectedTable * hf.factor, selectedTable, hf.factor),
+        hint: hf.hint,
+      });
+    });
+
+    // Fill remaining up to 5
+    const candidateFactors = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      .filter((f) => !usedFactors.has(f))
+      .sort(() => Math.random() - 0.5);
+
+    while (questions.length < 5 && candidateFactors.length > 0) {
+      const f = candidateFactors.pop()!;
+      questions.push({
+        factor1: selectedTable,
+        factor2: f,
+        correctAnswer: selectedTable * f,
+        options: generateDistractors(selectedTable * f, selectedTable, f),
+        hint: meta.trick,
+      });
+    }
+
+    // Shuffle questions
+    const finalQuestions = questions.sort(() => Math.random() - 0.5);
+
+    setCheckpointQuestions(finalQuestions);
+    setCheckpointIndex(0);
+    setCheckpointScore(0);
+    setCheckpointAnswered(false);
+    setLessonStep('checkpoint');
+  };
+
+  const handleCheckpointAnswer = (ans: number) => {
+    if (checkpointAnswered) return;
+    const currentQ = checkpointQuestions[checkpointIndex];
     const correct = ans === currentQ.correctAnswer;
-    setQuizAnswered(true);
-    setIsCorrect(correct);
+    setCheckpointAnswered(true);
+    setCheckpointIsCorrect(correct);
 
     if (correct) {
       soundService.playCorrect();
-      setQuizScore((prev) => prev + 1);
+      setCheckpointScore((prev) => prev + 1);
     } else {
       soundService.playWrong();
     }
   };
 
-  const handleNextQuizQuestion = () => {
+  const handleNextCheckpointQuestion = () => {
     soundService.playClick();
-    if (quizIndex + 1 < quizQuestions.length) {
-      setQuizIndex((prev) => prev + 1);
-      setQuizAnswered(false);
+    const nextIdx = checkpointIndex + 1;
+
+    if (nextIdx < checkpointQuestions.length) {
+      setCheckpointIndex(nextIdx);
+      setCheckpointAnswered(false);
     } else {
-      // Quiz complete
-      const finalScore = quizScore + (isCorrect ? 1 : 0);
-      if (finalScore >= 3 && selectedTable) {
+      // Checkpoint evaluated
+      const finalScore = checkpointScore + (checkpointIsCorrect ? 1 : 0);
+
+      // Need 4/5 or 5/5 to pass
+      if (finalScore >= 4 && selectedTable) {
         soundService.playFanfare();
         confetti({
-          particleCount: 140,
-          spread: 80,
+          particleCount: 150,
+          spread: 85,
           origin: { y: 0.5 },
         });
         setLessonStep('certified');
         onCompleteCourseTable(selectedTable, 50);
       } else {
-        alert(`You got ${finalScore}/3! Let's practice with the flashcards once more to get 3/3!`);
-        startFlashcards();
+        alert(`You scored ${finalScore}/5! You're super close! Let's do a fast review drill to get that Diploma!`);
+        startDrill();
       }
     }
   };
@@ -142,230 +283,328 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
   const completedCount = profile.courseCompletedTables.length;
   const progressPercent = Math.round((completedCount / 12) * 100);
 
+  // VIEW: INSIDE A SELECTED TABLE LESSON
   if (selectedTable !== null) {
     const meta = TABLE_METADATA[selectedTable];
 
     return (
       <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Navigation Bar inside Table Lesson */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             onClick={() => {
               soundService.playClick();
               setSelectedTable(null);
             }}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
           >
-            <ArrowLeft className="w-4 h-4" /> Exit Course
+            <ArrowLeft className="w-4 h-4" /> Back to Syllabus
           </button>
 
+          {/* Step Badges */}
           <div className="flex bg-slate-950/80 p-1 rounded-xl border border-slate-700 text-xs font-blox">
             <button
               onClick={() => {
                 soundService.playClick();
-                setLessonStep('trick');
+                setLessonStep('cheat-code');
               }}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                lessonStep === 'trick'
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                lessonStep === 'cheat-code'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              1. The Secret
+              1. Cheat Code & Blocks
             </button>
             <button
-              onClick={startFlashcards}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                lessonStep === 'flashcards'
+              onClick={startDrill}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                lessonStep === 'drill'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              2. Flashcards
+              2. Speed Drill
             </button>
             <button
-              onClick={startQuiz}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                lessonStep === 'quiz' || lessonStep === 'certified'
+              onClick={startCheckpoint}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                lessonStep === 'checkpoint' || lessonStep === 'certified'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              3. Checkpoint
+              3. Checkpoint Blitz
             </button>
           </div>
         </div>
 
-        {lessonStep === 'trick' && (
-          <div className="blox-card p-6 sm:p-8 space-y-6 text-center">
+        {/* ================= STEP 1: VISUAL CHEAT CODE & BLOCK ARRAY ================= */}
+        {lessonStep === 'cheat-code' && (
+          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in fade-in">
             <div className="inline-flex items-center gap-2 bg-yellow-400/20 border-2 border-yellow-400 text-yellow-300 px-3 py-1 rounded-full text-xs font-black uppercase">
-              <Sparkles className="w-4 h-4" /> Step 1: The Master Secret
+              <Sparkles className="w-4 h-4" /> Step 1: The Mental Cheat Code
             </div>
 
-            <h2 className="font-blox text-3xl sm:text-4xl text-white">
-              Table of {selectedTable}: {meta.name}
-            </h2>
-
-            <div className="bg-indigo-950/60 border-3 border-indigo-500/50 p-5 rounded-2xl max-w-xl mx-auto space-y-3">
-              <span className="text-3xl">💡</span>
-              <p className="text-base sm:text-lg text-slate-100 font-bold leading-relaxed">
-                {meta.trick}
+            <div>
+              <h2 className="font-blox text-3xl sm:text-4xl text-white">
+                Table of {selectedTable}: {meta.name}
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Learn the shortcut trick, see the Roblox block array, and memorize it forever!
               </p>
+            </div>
+
+            {/* The Main Cheat Code Card */}
+            <div className="bg-gradient-to-br from-indigo-950/80 via-slate-900 to-purple-950/80 border-3 border-indigo-500/60 p-5 sm:p-6 rounded-2xl max-w-xl mx-auto space-y-3 text-left shadow-lg">
+              <div className="flex items-center justify-between">
+                <span className="font-blox text-lg text-yellow-400 flex items-center gap-2">
+                  <span>⚡</span> {meta.cheatCodeTitle}
+                </span>
+                <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-indigo-900 text-indigo-200 border border-indigo-500/40">
+                  Secret Hack
+                </span>
+              </div>
+
+              <p className="text-sm sm:text-base text-slate-100 font-bold leading-relaxed">
+                {meta.cheatCodeExplanation}
+              </p>
+
+              <div className="bg-slate-950/90 border border-indigo-400/40 p-3 rounded-xl flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase">Example:</span>
+                <span className="font-blox text-base sm:text-lg text-emerald-400">
+                  {meta.cheatCodeExample}
+                </span>
+              </div>
+
               {meta.rhyme && (
-                <div className="bg-purple-900/50 border border-purple-400/50 p-3 rounded-xl">
-                  <span className="text-xs font-black text-pink-400 uppercase">Rhyme Chant:</span>
-                  <p className="text-base font-extrabold text-pink-200 mt-1 italic">
+                <div className="bg-purple-900/50 border border-purple-400/50 p-3 rounded-xl flex items-center gap-2">
+                  <span className="text-xl">🎵</span>
+                  <p className="text-xs sm:text-sm font-extrabold text-pink-200 italic">
                     "{meta.rhyme}"
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="max-w-xl mx-auto space-y-2">
-              <span className="text-xs font-black text-slate-300 uppercase tracking-wider">
-                Tap each number to chant the {selectedTable}s rhythm!
-              </span>
-              <div className="flex flex-wrap gap-2 justify-center pt-1">
-                {meta.skipCount.map((num, i) => (
+            {/* Interactive Tactile Roblox Block Array */}
+            <div className="bg-slate-950/80 border-2 border-slate-800 p-5 rounded-2xl max-w-xl mx-auto space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
+                  <span>🧱</span> Visual Block Array
+                </span>
+                <span className="font-blox text-sm text-yellow-400">
+                  {selectedTable} ✖ {arrayMultiplier} = {selectedTable * arrayMultiplier} Blocks
+                </span>
+              </div>
+
+              {/* Multiplier Pills to change array size */}
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
                   <button
-                    key={i}
-                    onClick={() => soundService.playCoin()}
-                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-800 hover:bg-yellow-400 hover:text-zinc-950 text-white font-blox text-base border-b-3 border-slate-950 active:translate-y-0.5 active:border-b-0 shadow transition-all flex items-center justify-center"
+                    key={m}
+                    onClick={() => {
+                      soundService.playClick();
+                      setArrayMultiplier(m);
+                    }}
+                    className={`w-8 h-8 rounded-lg font-blox text-xs transition-all cursor-pointer ${
+                      arrayMultiplier === m
+                        ? 'bg-yellow-400 text-zinc-950 shadow-md scale-110'
+                        : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                    }`}
                   >
-                    {num}
+                    {m}
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="pt-4">
-              <button
-                onClick={startFlashcards}
-                className="blox-button-green text-white font-blox text-lg px-8 py-3.5 rounded-2xl shadow-xl inline-flex items-center gap-2"
-              >
-                <span>I'M READY! PRACTICE FLASHCARDS</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {lessonStep === 'flashcards' && (
-          <div className="blox-card p-6 sm:p-8 space-y-6 text-center">
-            <div className="flex items-center justify-between max-w-lg mx-auto">
-              <span className="text-xs font-bold text-slate-400">
-                Card {flashcardIndex} of 12
-              </span>
-              <span className="text-xs font-black text-yellow-400 bg-yellow-950/60 px-2.5 py-0.5 rounded-full border border-yellow-500/40">
-                Tap Card to Flip! 🔄
-              </span>
-            </div>
-
-            <div
-              onClick={() => {
-                soundService.playClick();
-                setIsFlipped(!isFlipped);
-              }}
-              className={`w-full max-w-md h-64 mx-auto rounded-3xl p-6 border-4 cursor-pointer shadow-2xl transition-all duration-300 flex flex-col items-center justify-center select-none ${
-                isFlipped
-                  ? 'bg-gradient-to-br from-emerald-950 via-slate-900 to-teal-950 border-emerald-400 ring-4 ring-emerald-500/30'
-                  : 'bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border-indigo-400 ring-4 ring-indigo-500/30'
-              }`}
-            >
-              {!isFlipped ? (
-                <div className="space-y-4 animate-in fade-in">
-                  <span className="text-xs font-black uppercase text-indigo-300 tracking-wider">
-                    What is the answer?
-                  </span>
-                  <div className="font-blox text-5xl sm:text-6xl text-white">
-                    {selectedTable} ✖ {flashcardIndex} = ?
-                  </div>
-                  <p className="text-xs text-slate-400 font-bold">
-                    (Tap card to reveal the answer and blocks!)
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3 animate-in zoom-in-95">
-                  <span className="text-xs font-black uppercase text-emerald-300 tracking-wider">
-                    Answer:
-                  </span>
-                  <div className="font-blox text-5xl sm:text-6xl text-yellow-300">
-                    {selectedTable * flashcardIndex}
-                  </div>
-                  <div className="text-xs text-slate-200 font-bold bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
-                    {selectedTable} groups of {flashcardIndex} = {selectedTable * flashcardIndex}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-center gap-3 max-w-md mx-auto">
-              <button
-                disabled={flashcardIndex <= 1}
-                onClick={() => {
-                  soundService.playClick();
-                  setFlashcardIndex((prev) => Math.max(1, prev - 1));
-                  setIsFlipped(false);
-                }}
-                className="blox-button-blue text-white font-blox text-sm px-4 py-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                ← Previous
-              </button>
-
-              {flashcardIndex < 12 ? (
-                <button
-                  onClick={() => {
-                    soundService.playClick();
-                    setFlashcardIndex((prev) => Math.min(12, prev + 1));
-                    setIsFlipped(false);
+              {/* The Visual Grid of Blocks */}
+              <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center overflow-x-auto min-h-[140px]">
+                <div
+                  className="grid gap-1.5 p-2 bg-slate-950/60 rounded-xl border border-slate-800"
+                  style={{
+                    gridTemplateColumns: `repeat(${arrayMultiplier}, minmax(0, 1fr))`,
                   }}
-                  className="blox-button-green text-white font-blox text-sm px-6 py-2.5 rounded-xl shadow"
                 >
-                  Next Card →
-                </button>
-              ) : (
-                <button
-                  onClick={startQuiz}
-                  className="blox-button-yellow text-zinc-950 font-blox text-sm px-6 py-2.5 rounded-xl shadow-lg animate-bounce"
-                >
-                  TAKE CHECKPOINT QUIZ! 🚀
-                </button>
-              )}
+                  {Array.from({ length: selectedTable * arrayMultiplier }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md ${meta.blockColor} border border-black/40 shadow-[inset_0_-2px_0_rgba(0,0,0,0.3)] animate-in zoom-in-50 flex items-center justify-center`}
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-[11px] text-slate-400 font-bold mt-2.5">
+                  {arrayMultiplier} groups of {selectedTable} blocks ={' '}
+                  <span className="text-yellow-300 font-black">
+                    {selectedTable * arrayMultiplier}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Launch Step 2: Speed Drill */}
+            <div className="pt-2">
+              <button
+                onClick={startDrill}
+                className="blox-button-green text-white font-blox text-base sm:text-lg px-8 py-3.5 rounded-2xl shadow-xl inline-flex items-center gap-2 cursor-pointer group"
+              >
+                <span>READY! START SPEED DRILL</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         )}
 
-        {lessonStep === 'quiz' && quizQuestions[quizIndex] && (
-          <div className="blox-card p-6 sm:p-8 space-y-6 text-center">
-            <div className="flex items-center justify-between max-w-lg mx-auto">
-              <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/40">
-                Checkpoint Quiz (Need 3/3 to Pass!)
-              </span>
-              <span className="text-xs font-bold text-slate-400">
-                Question {quizIndex + 1} / 3
+        {/* ================= STEP 2: GAMIFIED RAPID-RECALL SPEED DRILL ================= */}
+        {lessonStep === 'drill' && drillQueue[currentDrillIndex] && (
+          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in zoom-in-95">
+            {/* Header: Progress & Streak */}
+            <div className="flex items-center justify-between max-w-md mx-auto">
+              <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 font-extrabold text-xs">
+                <Flame className={`w-4 h-4 ${drillStreak > 0 ? 'animate-bounce text-orange-400' : ''}`} />
+                <span>Streak: {drillStreak}</span>
+              </div>
+
+              <div className="text-xs font-bold text-slate-400">
+                Remaining in Queue: {drillQueue.length - currentDrillIndex}
+              </div>
+
+              <span className="text-xs font-black text-yellow-400 bg-yellow-950/60 px-2.5 py-1 rounded-full border border-yellow-500/40">
+                {drillMasteredCount}/12 Mastered
               </span>
             </div>
 
-            <div className="font-blox text-5xl sm:text-6xl text-white py-2 flex items-center justify-center gap-4">
+            {/* Question Card */}
+            <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border-3 border-indigo-500/50 p-6 sm:p-8 rounded-3xl max-w-md mx-auto shadow-2xl relative overflow-hidden">
+              {drillQueue[currentDrillIndex].isRetry && (
+                <span className="absolute top-3 right-3 bg-red-500 text-white font-blox text-[10px] px-2 py-0.5 rounded-full border border-black animate-pulse">
+                  RETRY CARD
+                </span>
+              )}
+
+              <span className="text-xs font-black uppercase text-indigo-300 tracking-wider">
+                Quick Recall Blitz
+              </span>
+
+              <div className="font-blox text-5xl sm:text-6xl text-white py-3 flex items-center justify-center gap-3">
+                <span className="bg-indigo-600/50 px-4 py-1.5 rounded-2xl border border-indigo-400">
+                  {selectedTable}
+                </span>
+                <span className="text-yellow-400">✖</span>
+                <span className="bg-purple-600/50 px-4 py-1.5 rounded-2xl border border-purple-400">
+                  {drillQueue[currentDrillIndex].factor}
+                </span>
+                <span className="text-slate-400">=</span>
+                <span className="text-yellow-300">
+                  {drillAnswered
+                    ? selectedTable * drillQueue[currentDrillIndex].factor
+                    : '?'}
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Chunky Multiple Choice Buttons */}
+            {!drillAnswered ? (
+              <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                {drillOptions.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleDrillAnswer(opt)}
+                    className="blox-button-purple text-white font-blox text-3xl py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 transition-all cursor-pointer"
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="max-w-md mx-auto space-y-3 animate-in fade-in">
+                <div
+                  className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-2 ${
+                    drillIsCorrect
+                      ? 'bg-green-950/80 border-green-500 text-green-300'
+                      : 'bg-red-950/80 border-red-500 text-red-300'
+                  }`}
+                >
+                  <div className="font-blox text-lg flex items-center gap-2">
+                    {drillIsCorrect ? (
+                      <>
+                        <Zap className="w-5 h-5 text-yellow-300" />
+                        <span>FAST & ACCURATE! +10 XP</span>
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="w-5 h-5 text-red-400 animate-spin" />
+                        <span>Missed it! Loop-back activated!</span>
+                      </>
+                    )}
+                  </div>
+
+                  {remediationHint && (
+                    <div className="bg-slate-950/80 border border-yellow-400/60 p-2.5 rounded-xl text-xs font-bold text-yellow-200 mt-1">
+                      💡 <strong>Cheat Code:</strong> {remediationHint}
+                    </div>
+                  )}
+
+                  {!drillIsCorrect && (
+                    <p className="text-[11px] text-slate-300">
+                      We added this card back to your practice queue so you can conquer it!
+                    </p>
+                  )}
+                </div>
+
+                {!drillIsCorrect && (
+                  <button
+                    onClick={() => advanceDrillQueue(false)}
+                    className="w-full blox-button-yellow text-zinc-950 font-blox text-base py-3 rounded-xl shadow cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>GOT IT, KEEP GOING</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= STEP 3: TABLE BOSS CHECKPOINT (5 QUESTIONS) ================= */}
+        {lessonStep === 'checkpoint' && checkpointQuestions[checkpointIndex] && (
+          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in zoom-in-95">
+            <div className="flex items-center justify-between max-w-md mx-auto">
+              <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/40 flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5 text-yellow-400" />
+                <span>Table Boss Checkpoint</span>
+              </span>
+              <span className="text-xs font-bold text-slate-400">
+                Question {checkpointIndex + 1} of 5
+              </span>
+            </div>
+
+            <div className="font-blox text-5xl sm:text-6xl text-white py-2 flex items-center justify-center gap-3">
               <span className="bg-indigo-600/40 px-4 py-1.5 rounded-2xl border border-indigo-400">
-                {quizQuestions[quizIndex].factor1}
+                {checkpointQuestions[checkpointIndex].factor1}
               </span>
               <span className="text-amber-400">✖</span>
               <span className="bg-purple-600/40 px-4 py-1.5 rounded-2xl border border-purple-400">
-                {quizQuestions[quizIndex].factor2}
+                {checkpointQuestions[checkpointIndex].factor2}
               </span>
               <span className="text-slate-400">=</span>
               <span className="text-yellow-300">
-                {quizAnswered ? quizQuestions[quizIndex].correctAnswer : '?'}
+                {checkpointAnswered
+                  ? checkpointQuestions[checkpointIndex].correctAnswer
+                  : '?'}
               </span>
             </div>
 
-            {!quizAnswered ? (
+            {!checkpointAnswered ? (
               <div className="grid grid-cols-2 gap-3 max-w-md mx-auto pt-2">
-                {quizQuestions[quizIndex].options.map((opt, idx) => (
+                {checkpointQuestions[checkpointIndex].options.map((opt, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleQuizAnswer(opt)}
-                    className="blox-button-purple text-white font-blox text-3xl py-4 rounded-2xl shadow-lg border-b-6"
+                    onClick={() => handleCheckpointAnswer(opt)}
+                    className="blox-button-purple text-white font-blox text-3xl py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 cursor-pointer"
                   >
                     {opt}
                   </button>
@@ -373,18 +612,18 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
               </div>
             ) : (
               <div
-                className={`p-4 rounded-2xl border-3 max-w-md mx-auto flex flex-col items-center gap-2 ${
-                  isCorrect
+                className={`p-4 rounded-2xl border-3 max-w-md mx-auto flex flex-col items-center gap-2 animate-in fade-in ${
+                  checkpointIsCorrect
                     ? 'bg-green-950/80 border-green-500 text-green-300'
                     : 'bg-red-950/80 border-red-500 text-red-300'
                 }`}
               >
                 <div className="font-blox text-lg flex items-center gap-2">
-                  {isCorrect ? 'AWESOME! CORRECT!' : 'UH OH! Keep this one in mind!'}
+                  {checkpointIsCorrect ? 'CRUSHED IT! CORRECT!' : 'UH OH! Remember the cheat code!'}
                 </div>
                 <button
-                  onClick={handleNextQuizQuestion}
-                  className="mt-2 blox-button-green text-white font-blox text-base px-6 py-2.5 rounded-xl flex items-center gap-2"
+                  onClick={handleNextCheckpointQuestion}
+                  className="mt-2 blox-button-green text-white font-blox text-base px-6 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow"
                 >
                   <span>CONTINUE</span>
                   <ArrowRight className="w-4 h-4" />
@@ -394,23 +633,24 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
           </div>
         )}
 
+        {/* ================= STEP 4: CERTIFIED CELEBRATION ================= */}
         {lessonStep === 'certified' && (
           <div className="blox-card p-6 sm:p-10 text-center space-y-6 animate-in zoom-in-95">
             <div className="text-6xl animate-bounce">🎓</div>
             <h3 className="font-blox text-3xl sm:text-4xl text-yellow-300">
-              TABLE {selectedTable} CERTIFIED!
+              TABLE {selectedTable} CERTIFIED DIPLOMA!
             </h3>
             <p className="text-slate-200 font-bold max-w-md mx-auto">
-              Outstanding work! You mastered the secret trick, flipped all the flashcards, and scored 3/3 on the checkpoint quiz!
+              Outstanding work! You mastered the Cheat Code, conquered the rapid-recall drill, and passed the Table Boss Checkpoint!
             </p>
-            <div className="bg-slate-950/80 p-4 rounded-2xl border-2 border-yellow-400 inline-flex items-center gap-2">
+            <div className="bg-slate-950/80 p-4 rounded-2xl border-2 border-yellow-400 inline-flex items-center gap-2 shadow-xl">
               <span className="text-sm font-bold text-slate-300">Course Bounty:</span>
               <span className="font-blox text-2xl text-yellow-400">+50 Blox Bux!</span>
             </div>
             <div className="flex gap-3 justify-center pt-2">
               <button
                 onClick={() => setSelectedTable(null)}
-                className="blox-button-green text-white font-blox text-base px-8 py-3 rounded-xl shadow-xl"
+                className="blox-button-green text-white font-blox text-base px-8 py-3 rounded-xl shadow-xl cursor-pointer"
               >
                 BACK TO COURSE SYLLABUS
               </button>
@@ -421,18 +661,20 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
     );
   }
 
+  // VIEW: MAIN COURSE SYLLABUS HUB
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-6">
+      {/* Academy Course Hero */}
       <div className="bg-gradient-to-r from-blue-900/60 via-indigo-900/60 to-purple-900/60 border-4 border-blue-500/50 p-5 sm:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2">
             <GraduationCap className="w-8 h-8 text-yellow-400 animate-bounce" />
             <h2 className="font-blox text-2xl sm:text-3xl text-yellow-300">
-              Blox Multiplication Academy Course
+              Blox Multiplication Academy
             </h2>
           </div>
           <p className="text-slate-300 text-sm mt-1 max-w-xl">
-            A step-by-step guided journey to memorize all 12 tables! Master secrets, flip flashcards, and pass checkpoints to earn your Blox Diploma!
+            A step-by-step guided journey to memorize all 12 tables! Unlock mental cheat codes, see physical Roblox block arrays, drill with rapid recall, and crush Table Boss checkpoints!
           </p>
         </div>
 
@@ -447,6 +689,7 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
         </div>
       </div>
 
+      {/* Course Stages List */}
       <div className="space-y-6">
         {COURSE_PHASES.map((phase) => (
           <div key={phase.phaseNumber} className="space-y-3">
@@ -476,7 +719,7 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
                       </div>
 
                       {isCompleted ? (
-                        <div className="flex items-center gap-1 bg-green-950 border border-green-500 text-green-400 px-2 py-0.5 rounded-full text-xs font-blox">
+                        <div className="flex items-center gap-1 bg-green-950 border border-green-500 text-green-400 px-2.5 py-0.5 rounded-full text-xs font-blox">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>CERTIFIED</span>
                         </div>
@@ -488,15 +731,20 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
                     </div>
 
                     <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-xs font-black text-yellow-400">
+                          {meta.cheatCodeTitle}
+                        </span>
+                      </div>
                       <h4 className="font-blox text-base text-white">{meta.name}</h4>
                       <p className="text-xs text-slate-300 line-clamp-2 mt-1 font-medium">
-                        {meta.trick}
+                        {meta.cheatCodeExplanation}
                       </p>
                     </div>
 
                     <button
                       onClick={() => startTableLesson(tableNum)}
-                      className={`w-full py-2.5 rounded-xl font-blox text-xs sm:text-sm shadow flex items-center justify-center gap-1.5 transition-all ${
+                      className={`w-full py-2.5 rounded-xl font-blox text-xs sm:text-sm shadow flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                         isCompleted
                           ? 'blox-button-blue text-white'
                           : 'blox-button-green text-white'
