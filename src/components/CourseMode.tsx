@@ -341,239 +341,254 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
 
         {/* ================= STEP 1: VISUAL CHEAT CODE & BLOCK ARRAY ================= */}
         {lessonStep === 'cheat-code' && (
-          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in fade-in">
-            <div className="inline-flex items-center gap-2 bg-yellow-400/20 border-2 border-yellow-400 text-yellow-300 px-3 py-1 rounded-full text-xs font-black uppercase">
-              <Sparkles className="w-4 h-4" /> Step 1: The Mental Cheat Code
-            </div>
-
-            <div>
-              <h2 className="font-blox text-3xl sm:text-4xl text-white">
+          <div className="blox-card p-4 sm:p-6 space-y-4 animate-in fade-in">
+            <div className="text-center space-y-1">
+              <div className="inline-flex items-center gap-2 bg-yellow-400/20 border-2 border-yellow-400 text-yellow-300 px-3 py-0.5 rounded-full text-xs font-black uppercase">
+                <Sparkles className="w-4 h-4" /> Step 1: The Mental Cheat Code
+              </div>
+              <h2 className="font-blox text-2xl sm:text-3xl text-white">
                 Table of {selectedTable}: {meta.name}
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-400">
                 Learn the shortcut trick, see the Roblox block array, and memorize it forever!
               </p>
             </div>
 
-            {/* The Main Cheat Code Card */}
-            <div className="bg-gradient-to-br from-indigo-950/80 via-slate-900 to-purple-950/80 border-3 border-indigo-500/60 p-5 sm:p-6 rounded-2xl max-w-xl mx-auto space-y-3 text-left shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="font-blox text-lg text-yellow-400 flex items-center gap-2">
-                  <span>⚡</span> {meta.cheatCodeTitle}
-                </span>
-                <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-indigo-900 text-indigo-200 border border-indigo-500/40">
-                  Secret Hack
-                </span>
-              </div>
+            {/* Responsive 2-Column Split View: Left = Cheat Code, Right = Interactive Block Array & Launch */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch max-w-5xl mx-auto">
+              {/* Left Column: The Cheat Code Card */}
+              <div className="md:col-span-6 bg-gradient-to-br from-indigo-950/80 via-slate-900 to-purple-950/80 border-3 border-indigo-500/60 p-4 sm:p-5 rounded-2xl space-y-3 shadow-lg flex flex-col justify-between">
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-blox text-base sm:text-lg text-yellow-400 flex items-center gap-2">
+                      <span>⚡</span> {meta.cheatCodeTitle}
+                    </span>
+                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-indigo-900 text-indigo-200 border border-indigo-500/40">
+                      Secret Hack
+                    </span>
+                  </div>
 
-              <p className="text-sm sm:text-base text-slate-100 font-bold leading-relaxed">
-                {meta.cheatCodeExplanation}
-              </p>
-
-              <div className="bg-slate-950/90 border border-indigo-400/40 p-3 rounded-xl flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-400 uppercase">Example:</span>
-                <span className="font-blox text-base sm:text-lg text-emerald-400">
-                  {meta.cheatCodeExample}
-                </span>
-              </div>
-
-              {meta.rhyme && (
-                <div className="bg-purple-900/50 border border-purple-400/50 p-3 rounded-xl flex items-center gap-2">
-                  <span className="text-xl">🎵</span>
-                  <p className="text-xs sm:text-sm font-extrabold text-pink-200 italic">
-                    "{meta.rhyme}"
+                  <p className="text-xs sm:text-sm text-slate-100 font-bold leading-relaxed">
+                    {meta.cheatCodeExplanation}
                   </p>
                 </div>
-              )}
-            </div>
 
-            {/* Interactive Tactile Roblox Block Array */}
-            <div className="bg-slate-950/80 border-2 border-slate-800 p-5 rounded-2xl max-w-xl mx-auto space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
-                  <span>🧱</span> Visual Block Array
-                </span>
-                <span className="font-blox text-sm text-yellow-400">
-                  {selectedTable} ✖ {arrayMultiplier} = {selectedTable * arrayMultiplier} Blocks
-                </span>
-              </div>
+                <div className="space-y-2">
+                  <div className="bg-slate-950/90 border border-indigo-400/40 p-2.5 rounded-xl flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase">Example:</span>
+                    <span className="font-blox text-sm sm:text-base text-emerald-400">
+                      {meta.cheatCodeExample}
+                    </span>
+                  </div>
 
-              {/* Multiplier Pills to change array size */}
-              <div className="flex flex-wrap gap-1.5 justify-center">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => {
-                      soundService.playClick();
-                      setArrayMultiplier(m);
-                    }}
-                    className={`w-8 h-8 rounded-lg font-blox text-xs transition-all cursor-pointer ${
-                      arrayMultiplier === m
-                        ? 'bg-yellow-400 text-zinc-950 shadow-md scale-110'
-                        : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-
-              {/* The Visual Grid of Blocks */}
-              <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center overflow-x-auto min-h-[140px]">
-                <div
-                  className="grid gap-1.5 p-2 bg-slate-950/60 rounded-xl border border-slate-800"
-                  style={{
-                    gridTemplateColumns: `repeat(${arrayMultiplier}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {Array.from({ length: selectedTable * arrayMultiplier }).map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md ${meta.blockColor} border border-black/40 shadow-[inset_0_-2px_0_rgba(0,0,0,0.3)] animate-in zoom-in-50 flex items-center justify-center`}
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+                  {meta.rhyme && (
+                    <div className="bg-purple-900/50 border border-purple-400/50 p-2.5 rounded-xl flex items-center gap-2">
+                      <span className="text-lg">🎵</span>
+                      <p className="text-xs font-extrabold text-pink-200 italic">
+                        "{meta.rhyme}"
+                      </p>
                     </div>
-                  ))}
-                </div>
-
-                <div className="text-[11px] text-slate-400 font-bold mt-2.5">
-                  {arrayMultiplier} groups of {selectedTable} blocks ={' '}
-                  <span className="text-yellow-300 font-black">
-                    {selectedTable * arrayMultiplier}
-                  </span>
+                  )}
                 </div>
               </div>
-            </div>
 
-            {/* Launch Step 2: Speed Drill */}
-            <div className="pt-2">
-              <button
-                onClick={startDrill}
-                className="blox-button-green text-white font-blox text-base sm:text-lg px-8 py-3.5 rounded-2xl shadow-xl inline-flex items-center gap-2 cursor-pointer group"
-              >
-                <span>READY! START SPEED DRILL</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              {/* Right Column: Interactive Tactile Block Array & Launch Drill Button */}
+              <div className="md:col-span-6 bg-slate-950/80 border-2 border-slate-800 p-4 rounded-2xl space-y-3 flex flex-col justify-between">
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
+                      <span>🧱</span> Visual Block Array
+                    </span>
+                    <span className="font-blox text-xs sm:text-sm text-yellow-400">
+                      {selectedTable} ✖ {arrayMultiplier} = {selectedTable * arrayMultiplier}
+                    </span>
+                  </div>
+
+                  {/* Multiplier Pills */}
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => {
+                          soundService.playClick();
+                          setArrayMultiplier(m);
+                        }}
+                        className={`w-7 h-7 rounded-lg font-blox text-xs transition-all cursor-pointer ${
+                          arrayMultiplier === m
+                            ? 'bg-yellow-400 text-zinc-950 shadow-md scale-110'
+                            : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Visual Grid of Blocks */}
+                  <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex flex-col items-center justify-center overflow-x-auto min-h-[110px]">
+                    <div
+                      className="grid gap-1 p-1.5 bg-slate-950/60 rounded-xl border border-slate-800"
+                      style={{
+                        gridTemplateColumns: `repeat(${arrayMultiplier}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {Array.from({ length: selectedTable * arrayMultiplier }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md ${meta.blockColor} border border-black/40 shadow-[inset_0_-2px_0_rgba(0,0,0,0.3)] animate-in zoom-in-50 flex items-center justify-center`}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 font-bold mt-2">
+                      {arrayMultiplier} groups of {selectedTable} blocks ={' '}
+                      <span className="text-yellow-300 font-black">
+                        {selectedTable * arrayMultiplier}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Launch Drill Action */}
+                <button
+                  onClick={startDrill}
+                  className="w-full blox-button-green text-white font-blox text-sm sm:text-base py-3 rounded-xl shadow-xl flex items-center justify-center gap-2 cursor-pointer group"
+                >
+                  <span>READY! START SPEED DRILL</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* ================= STEP 2: GAMIFIED RAPID-RECALL SPEED DRILL ================= */}
         {lessonStep === 'drill' && drillQueue[currentDrillIndex] && (
-          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in zoom-in-95">
+          <div className="blox-card p-4 sm:p-6 space-y-4 text-center animate-in zoom-in-95">
             {/* Header: Progress & Streak */}
-            <div className="flex items-center justify-between max-w-md mx-auto">
-              <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 font-extrabold text-xs">
-                <Flame className={`w-4 h-4 ${drillStreak > 0 ? 'animate-bounce text-orange-400' : ''}`} />
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
+              <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-0.5 rounded-full text-amber-400 font-extrabold text-xs">
+                <Flame className={`w-3.5 h-3.5 ${drillStreak > 0 ? 'animate-bounce text-orange-400' : ''}`} />
                 <span>Streak: {drillStreak}</span>
               </div>
 
               <div className="text-xs font-bold text-slate-400">
-                Remaining in Queue: {drillQueue.length - currentDrillIndex}
+                Queue: {drillQueue.length - currentDrillIndex} cards left
               </div>
 
-              <span className="text-xs font-black text-yellow-400 bg-yellow-950/60 px-2.5 py-1 rounded-full border border-yellow-500/40">
+              <span className="text-xs font-black text-yellow-400 bg-yellow-950/60 px-2.5 py-0.5 rounded-full border border-yellow-500/40">
                 {drillMasteredCount}/12 Mastered
               </span>
             </div>
 
-            {/* Question Card */}
-            <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border-3 border-indigo-500/50 p-6 sm:p-8 rounded-3xl max-w-md mx-auto shadow-2xl relative overflow-hidden">
-              {drillQueue[currentDrillIndex].isRetry && (
-                <span className="absolute top-3 right-3 bg-red-500 text-white font-blox text-[10px] px-2 py-0.5 rounded-full border border-black animate-pulse">
-                  RETRY CARD
+            {/* Split View: Left = Question Card, Right = Options or Feedback */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch max-w-4xl mx-auto">
+              {/* Left Column: Question Card */}
+              <div className="md:col-span-7 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 border-3 border-indigo-500/50 p-5 sm:p-6 rounded-3xl shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                {drillQueue[currentDrillIndex].isRetry && (
+                  <span className="absolute top-3 right-3 bg-red-500 text-white font-blox text-[10px] px-2 py-0.5 rounded-full border border-black animate-pulse">
+                    RETRY CARD
+                  </span>
+                )}
+
+                <span className="text-[11px] font-black uppercase text-indigo-300 tracking-wider">
+                  Quick Recall Blitz
                 </span>
-              )}
 
-              <span className="text-xs font-black uppercase text-indigo-300 tracking-wider">
-                Quick Recall Blitz
-              </span>
-
-              <div className="font-blox text-5xl sm:text-6xl text-white py-3 flex items-center justify-center gap-3">
-                <span className="bg-indigo-600/50 px-4 py-1.5 rounded-2xl border border-indigo-400">
-                  {selectedTable}
-                </span>
-                <span className="text-yellow-400">✖</span>
-                <span className="bg-purple-600/50 px-4 py-1.5 rounded-2xl border border-purple-400">
-                  {drillQueue[currentDrillIndex].factor}
-                </span>
-                <span className="text-slate-400">=</span>
-                <span className="text-yellow-300">
-                  {drillAnswered
-                    ? selectedTable * drillQueue[currentDrillIndex].factor
-                    : '?'}
-                </span>
-              </div>
-            </div>
-
-            {/* 4 Chunky Multiple Choice Buttons */}
-            {!drillAnswered ? (
-              <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
-                {drillOptions.map((opt, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleDrillAnswer(opt)}
-                    className="blox-button-purple text-white font-blox text-3xl py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 transition-all cursor-pointer"
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="max-w-md mx-auto space-y-3 animate-in fade-in">
-                <div
-                  className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-2 ${
-                    drillIsCorrect
-                      ? 'bg-green-950/80 border-green-500 text-green-300'
-                      : 'bg-red-950/80 border-red-500 text-red-300'
-                  }`}
-                >
-                  <div className="font-blox text-lg flex items-center gap-2">
-                    {drillIsCorrect ? (
-                      <>
-                        <Zap className="w-5 h-5 text-yellow-300" />
-                        <span>FAST & ACCURATE! +10 XP</span>
-                      </>
-                    ) : (
-                      <>
-                        <RotateCcw className="w-5 h-5 text-red-400 animate-spin" />
-                        <span>Missed it! Loop-back activated!</span>
-                      </>
-                    )}
-                  </div>
-
-                  {remediationHint && (
-                    <div className="bg-slate-950/80 border border-yellow-400/60 p-2.5 rounded-xl text-xs font-bold text-yellow-200 mt-1">
-                      💡 <strong>Cheat Code:</strong> {remediationHint}
-                    </div>
-                  )}
-
-                  {!drillIsCorrect && (
-                    <p className="text-[11px] text-slate-300">
-                      We added this card back to your practice queue so you can conquer it!
-                    </p>
-                  )}
+                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white py-3 flex items-center justify-center gap-3">
+                  <span className="bg-indigo-600/50 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                    {selectedTable}
+                  </span>
+                  <span className="text-yellow-400">✖</span>
+                  <span className="bg-purple-600/50 px-3.5 py-1 rounded-2xl border border-purple-400">
+                    {drillQueue[currentDrillIndex].factor}
+                  </span>
+                  <span className="text-slate-400">=</span>
+                  <span className="text-yellow-300">
+                    {drillAnswered
+                      ? selectedTable * drillQueue[currentDrillIndex].factor
+                      : '?'}
+                  </span>
                 </div>
 
-                {!drillIsCorrect && (
-                  <button
-                    onClick={() => advanceDrillQueue(false)}
-                    className="w-full blox-button-yellow text-zinc-950 font-blox text-base py-3 rounded-xl shadow cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <span>GOT IT, KEEP GOING</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                <p className="text-[11px] text-slate-400 italic">
+                  Speed builds fluency! Select the correct product.
+                </p>
+              </div>
+
+              {/* Right Column: 4 Chunky Buttons or Feedback */}
+              <div className="md:col-span-5 flex flex-col justify-center">
+                {!drillAnswered ? (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {drillOptions.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleDrillAnswer(opt)}
+                        className="blox-button-purple text-white font-blox text-2xl sm:text-3xl py-3.5 sm:py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 transition-all cursor-pointer hover:scale-[1.02]"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3 animate-in fade-in h-full flex flex-col justify-center">
+                    <div
+                      className={`p-3.5 rounded-2xl border-3 flex flex-col items-center gap-2 ${
+                        drillIsCorrect
+                          ? 'bg-green-950/80 border-green-500 text-green-300'
+                          : 'bg-red-950/80 border-red-500 text-red-300'
+                      }`}
+                    >
+                      <div className="font-blox text-base sm:text-lg flex items-center gap-2">
+                        {drillIsCorrect ? (
+                          <>
+                            <Zap className="w-5 h-5 text-yellow-300" />
+                            <span>FAST & ACCURATE! +10 XP</span>
+                          </>
+                        ) : (
+                          <>
+                            <RotateCcw className="w-5 h-5 text-red-400 animate-spin" />
+                            <span>Loop-back activated!</span>
+                          </>
+                        )}
+                      </div>
+
+                      {remediationHint && (
+                        <div className="bg-slate-950/80 border border-yellow-400/60 p-2 rounded-xl text-xs font-bold text-yellow-200">
+                          💡 <strong>Cheat Code:</strong> {remediationHint}
+                        </div>
+                      )}
+
+                      {!drillIsCorrect && (
+                        <p className="text-[11px] text-slate-300">
+                          Card re-inserted in practice queue to reinforce memory!
+                        </p>
+                      )}
+                    </div>
+
+                    {!drillIsCorrect && (
+                      <button
+                        onClick={() => advanceDrillQueue(false)}
+                        className="w-full blox-button-yellow text-zinc-950 font-blox text-sm sm:text-base py-2.5 rounded-xl shadow cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <span>GOT IT, KEEP GOING</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+            </div>
           </div>
         )}
 
         {/* ================= STEP 3: TABLE BOSS CHECKPOINT (5 QUESTIONS) ================= */}
         {lessonStep === 'checkpoint' && checkpointQuestions[checkpointIndex] && (
-          <div className="blox-card p-5 sm:p-8 space-y-6 text-center animate-in zoom-in-95">
-            <div className="flex items-center justify-between max-w-md mx-auto">
-              <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/40 flex items-center gap-1.5">
+          <div className="blox-card p-4 sm:p-6 space-y-4 text-center animate-in zoom-in-95">
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
+              <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-3 py-0.5 rounded-full border border-amber-500/40 flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-yellow-400" />
                 <span>Table Boss Checkpoint</span>
               </span>
@@ -582,54 +597,71 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
               </span>
             </div>
 
-            <div className="font-blox text-5xl sm:text-6xl text-white py-2 flex items-center justify-center gap-3">
-              <span className="bg-indigo-600/40 px-4 py-1.5 rounded-2xl border border-indigo-400">
-                {checkpointQuestions[checkpointIndex].factor1}
-              </span>
-              <span className="text-amber-400">✖</span>
-              <span className="bg-purple-600/40 px-4 py-1.5 rounded-2xl border border-purple-400">
-                {checkpointQuestions[checkpointIndex].factor2}
-              </span>
-              <span className="text-slate-400">=</span>
-              <span className="text-yellow-300">
-                {checkpointAnswered
-                  ? checkpointQuestions[checkpointIndex].correctAnswer
-                  : '?'}
-              </span>
-            </div>
+            {/* Split View: Left = Question Card, Right = Choices or Feedback */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch max-w-4xl mx-auto">
+              {/* Left Column: Checkpoint Question */}
+              <div className="md:col-span-7 bg-slate-950/80 border-3 border-indigo-500/40 p-5 rounded-3xl flex flex-col justify-between">
+                <span className="text-[11px] font-black uppercase text-amber-400 tracking-wider">
+                  Checkpoint Mastery Test
+                </span>
 
-            {!checkpointAnswered ? (
-              <div className="grid grid-cols-2 gap-3 max-w-md mx-auto pt-2">
-                {checkpointQuestions[checkpointIndex].options.map((opt, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleCheckpointAnswer(opt)}
-                    className="blox-button-purple text-white font-blox text-3xl py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 cursor-pointer"
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div
-                className={`p-4 rounded-2xl border-3 max-w-md mx-auto flex flex-col items-center gap-2 animate-in fade-in ${
-                  checkpointIsCorrect
-                    ? 'bg-green-950/80 border-green-500 text-green-300'
-                    : 'bg-red-950/80 border-red-500 text-red-300'
-                }`}
-              >
-                <div className="font-blox text-lg flex items-center gap-2">
-                  {checkpointIsCorrect ? 'CRUSHED IT! CORRECT!' : 'UH OH! Remember the cheat code!'}
+                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white py-3 flex items-center justify-center gap-3">
+                  <span className="bg-indigo-600/40 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                    {checkpointQuestions[checkpointIndex].factor1}
+                  </span>
+                  <span className="text-amber-400">✖</span>
+                  <span className="bg-purple-600/40 px-3.5 py-1 rounded-2xl border border-purple-400">
+                    {checkpointQuestions[checkpointIndex].factor2}
+                  </span>
+                  <span className="text-slate-400">=</span>
+                  <span className="text-yellow-300">
+                    {checkpointAnswered
+                      ? checkpointQuestions[checkpointIndex].correctAnswer
+                      : '?'}
+                  </span>
                 </div>
-                <button
-                  onClick={handleNextCheckpointQuestion}
-                  className="mt-2 blox-button-green text-white font-blox text-base px-6 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow"
-                >
-                  <span>CONTINUE</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+
+                <p className="text-[11px] text-slate-400">
+                  Pass this checkpoint to unlock your official Certified Diploma!
+                </p>
               </div>
-            )}
+
+              {/* Right Column: 4 Buttons or Feedback */}
+              <div className="md:col-span-5 flex flex-col justify-center">
+                {!checkpointAnswered ? (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {checkpointQuestions[checkpointIndex].options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleCheckpointAnswer(opt)}
+                        className="blox-button-purple text-white font-blox text-2xl sm:text-3xl py-3.5 sm:py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 cursor-pointer transition-all hover:scale-[1.02]"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-2 animate-in fade-in h-full justify-center ${
+                      checkpointIsCorrect
+                        ? 'bg-green-950/80 border-green-500 text-green-300'
+                        : 'bg-red-950/80 border-red-500 text-red-300'
+                    }`}
+                  >
+                    <div className="font-blox text-base sm:text-lg flex items-center gap-2">
+                      {checkpointIsCorrect ? 'CRUSHED IT! CORRECT!' : 'UH OH! Remember the cheat code!'}
+                    </div>
+                    <button
+                      onClick={handleNextCheckpointQuestion}
+                      className="mt-2 blox-button-green text-white font-blox text-sm sm:text-base px-6 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow"
+                    >
+                      <span>CONTINUE</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

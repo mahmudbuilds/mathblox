@@ -218,14 +218,15 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
   // VIEW 2: Active Question Playing Screen
   if (selectedTable !== null && currentQ) {
     return (
-      <div className="max-w-3xl mx-auto p-3 sm:p-6 space-y-5">
+      <div className="max-w-5xl mx-auto p-3 sm:p-5 space-y-4">
+        {/* Top Header Bar */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => {
               soundService.playClick();
               setSelectedTable(null);
             }}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-all"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-all cursor-pointer"
           >
             ← Exit Round
           </button>
@@ -247,158 +248,191 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
           </div>
         </div>
 
-        <div className="blox-card p-6 sm:p-8 text-center space-y-6 relative overflow-hidden">
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-xs font-black uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-800">
-              {isMixed ? 'Mixed 1-12 Challenge' : `Table of ${currentQ.factor1}`}
-            </span>
-          </div>
-
-          <div className="py-2">
-            <div className="font-blox text-5xl sm:text-7xl text-white tracking-wide flex items-center justify-center gap-4 sm:gap-6">
-              <span className="bg-indigo-600/40 px-4 sm:px-6 py-2 rounded-2xl border-2 border-indigo-400/40 shadow-inner">
-                {currentQ.factor1}
-              </span>
-              <span className="text-amber-400 text-4xl sm:text-6xl">✖</span>
-              <span className="bg-purple-600/40 px-4 sm:px-6 py-2 rounded-2xl border-2 border-purple-400/40 shadow-inner">
-                {currentQ.factor2}
-              </span>
-              <span className="text-slate-400 text-4xl sm:text-6xl">=</span>
-              <span className="bg-slate-950 px-4 sm:px-6 py-2 rounded-2xl border-2 border-yellow-400/80 text-yellow-300 min-w-[90px] sm:min-w-[120px] shadow-lg">
-                {isAnswered
-                  ? currentQ.correctAnswer
-                  : profile.inputMode === 'keypad'
-                  ? keypadInput || '?'
-                  : '?'}
-              </span>
-            </div>
-          </div>
-
-          {isAnswered ? (
-            <div
-              className={`p-4 rounded-2xl border-3 flex flex-col items-center gap-2 animate-in fade-in zoom-in-95 duration-200 ${
-                isCorrect
-                  ? 'bg-green-950/80 border-green-500 text-green-300'
-                  : 'bg-red-950/80 border-red-500 text-red-300'
-              }`}
-            >
-              <div className="flex items-center gap-2 text-lg font-blox">
-                {isCorrect ? (
-                  <>
-                    <CheckCircle2 className="w-6 h-6 text-green-400" />
-                    <span>AWESOME JOB! CORRECT!</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-6 h-6 text-red-400" />
-                    <span>OOF! The correct answer is {currentQ.correctAnswer}</span>
-                  </>
-                )}
+        {/* Responsive Split View: Left = Question & Feedback, Right = Input Controls / Keypad */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+          {/* Left Column: Question, Hint, and Result Feedback */}
+          <div className="md:col-span-7 blox-card p-4 sm:p-6 text-center space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-3 py-0.5 rounded-full border border-cyan-800">
+                  {isMixed ? 'Mixed 1-12 Challenge' : `Table of ${currentQ.factor1}`}
+                </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-200 max-w-md font-medium">
-                {currentQ.hint}
-              </p>
-
-              <button
-                onClick={handleNextQuestion}
-                className="mt-2 blox-button-green text-white font-blox text-base sm:text-lg px-8 py-3 rounded-xl flex items-center gap-2 shadow-lg"
-              >
-                <span>NEXT QUESTION</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              <div className="py-2">
+                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white tracking-wide flex items-center justify-center gap-3 sm:gap-4">
+                  <span className="bg-indigo-600/40 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-indigo-400/40 shadow-inner">
+                    {currentQ.factor1}
+                  </span>
+                  <span className="text-amber-400 text-3xl sm:text-4xl">✖</span>
+                  <span className="bg-purple-600/40 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-purple-400/40 shadow-inner">
+                    {currentQ.factor2}
+                  </span>
+                  <span className="text-slate-400 text-3xl sm:text-4xl">=</span>
+                  <span className="bg-slate-950 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-yellow-400/80 text-yellow-300 min-w-[70px] sm:min-w-[90px] shadow-lg">
+                    {isAnswered
+                      ? currentQ.correctAnswer
+                      : profile.inputMode === 'keypad'
+                      ? keypadInput || '?'
+                      : '?'}
+                  </span>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div>
-              <button
-                onClick={() => {
-                  soundService.playClick();
-                  setShowHint(!showHint);
-                }}
-                className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-yellow-200 bg-amber-950/40 hover:bg-amber-900/40 px-3 py-1.5 rounded-xl border border-amber-600/40 transition-all font-bold"
-              >
-                <HelpCircle className="w-4 h-4 text-amber-400" />
-                <span>{showHint ? 'Hide Hint' : 'Need a Hint?'}</span>
-              </button>
 
-              {showHint && (
-                <div className="mt-4 bg-slate-950/90 border-2 border-amber-500/50 p-4 rounded-2xl max-w-md mx-auto space-y-2 animate-in fade-in">
-                  <div className="text-xs font-bold text-amber-400">
-                    Visual Array: {currentQ.factor1} rows of {currentQ.factor2} blocks
-                  </div>
-                  <div className="flex justify-center overflow-auto max-h-32 py-1">
-                    <div
-                      className="grid gap-1"
-                      style={{ gridTemplateColumns: `repeat(${currentQ.factor2}, minmax(0, 1fr))` }}
-                    >
-                      {Array.from({ length: currentQ.factor1 * currentQ.factor2 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-3.5 h-3.5 rounded-xs bg-cyan-400 border border-cyan-200"
-                        />
-                      ))}
+            {/* Answer Feedback or Hint Panel */}
+            {isAnswered ? (
+              <div
+                className={`p-3.5 sm:p-4 rounded-2xl border-3 flex flex-col items-center gap-2 animate-in fade-in zoom-in-95 duration-200 ${
+                  isCorrect
+                    ? 'bg-green-950/80 border-green-500 text-green-300'
+                    : 'bg-red-950/80 border-red-500 text-red-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-base sm:text-lg font-blox">
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 text-green-400" />
+                      <span>AWESOME JOB! CORRECT!</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-5 h-5 text-red-400" />
+                      <span>OOF! The correct answer is {currentQ.correctAnswer}</span>
+                    </>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-200 max-w-md font-medium">
+                  {currentQ.hint}
+                </p>
+
+                <button
+                  onClick={handleNextQuestion}
+                  className="mt-1 blox-button-green text-white font-blox text-sm sm:text-base px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg cursor-pointer"
+                >
+                  <span>NEXT QUESTION</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="pt-1">
+                <button
+                  onClick={() => {
+                    soundService.playClick();
+                    setShowHint(!showHint);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-yellow-200 bg-amber-950/40 hover:bg-amber-900/40 px-3 py-1.5 rounded-xl border border-amber-600/40 transition-all font-bold cursor-pointer"
+                >
+                  <HelpCircle className="w-4 h-4 text-amber-400" />
+                  <span>{showHint ? 'Hide Hint' : 'Need a Hint?'}</span>
+                </button>
+
+                {showHint && (
+                  <div className="mt-3 bg-slate-950/90 border-2 border-amber-500/50 p-3 rounded-2xl max-w-md mx-auto space-y-2 animate-in fade-in">
+                    <div className="text-[11px] font-bold text-amber-400">
+                      Visual Array: {currentQ.factor1} rows of {currentQ.factor2} blocks
                     </div>
-                  </div>
-                  <p className="text-xs text-slate-300 italic">{currentQ.hint}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {!isAnswered && (
-            <div>
-              {profile.inputMode === 'multiple-choice' ? (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-lg mx-auto pt-2">
-                  {currentQ.options.map((opt, idx) => {
-                    const colors = [
-                      'blox-button-blue',
-                      'blox-button-purple',
-                      'blox-button-yellow',
-                      'blox-button-green',
-                    ];
-                    const colorClass = colors[idx % colors.length];
-
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleAnswer(opt)}
-                        className={`${colorClass} text-white font-blox text-3xl sm:text-4xl py-4 sm:py-5 rounded-2xl shadow-lg border-b-6 flex items-center justify-center`}
+                    <div className="flex justify-center overflow-auto max-h-28 py-1">
+                      <div
+                        className="grid gap-1"
+                        style={{ gridTemplateColumns: `repeat(${currentQ.factor2}, minmax(0, 1fr))` }}
                       >
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="max-w-xs mx-auto space-y-3 pt-2">
-                  <div className="grid grid-cols-3 gap-2">
-                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'back'].map(
-                      (key) => (
-                        <button
-                          key={key}
-                          onClick={() => handleKeypadPress(key)}
-                          className="h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-blox text-xl border-b-3 border-slate-950 active:translate-y-0.5 active:border-b-0 shadow"
-                        >
-                          {key === 'clear' ? 'C' : key === 'back' ? '⌫' : key}
-                        </button>
-                      )
-                    )}
+                        {Array.from({ length: currentQ.factor1 * currentQ.factor2 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-3 h-3 rounded-xs bg-cyan-400 border border-cyan-200"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-300 italic">{currentQ.hint}</p>
                   </div>
-                  <button
-                    disabled={!keypadInput}
-                    onClick={() => handleAnswer(parseInt(keypadInput, 10))}
-                    className={`w-full py-3 rounded-xl font-blox text-lg text-white shadow-lg transition-all ${
-                      keypadInput
-                        ? 'blox-button-green cursor-pointer'
-                        : 'bg-slate-700 opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    SUBMIT ANSWER
-                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Input Controls (Multiple Choice Grid or Numeric Keypad) */}
+          <div className="md:col-span-5 blox-card p-4 sm:p-5 text-center flex flex-col justify-center">
+            {isAnswered ? (
+              <div className="space-y-4 py-4 animate-in fade-in">
+                <div className="text-4xl">
+                  {isCorrect ? '🌟' : '💡'}
                 </div>
-              )}
-            </div>
-          )}
+                <div className="font-blox text-lg text-yellow-300">
+                  {isCorrect ? 'Fact Mastered!' : 'Keep Learning!'}
+                </div>
+                <div className="bg-slate-950/80 border border-slate-700 p-3 rounded-xl max-w-xs mx-auto space-y-1 text-xs">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Round Score:</span>
+                    <span className="font-bold text-white">{score} / {currentIndex + 1}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Coins This Round:</span>
+                    <span className="font-bold text-yellow-400">+{coinsWonThisRound} Bux</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">
+                  {profile.inputMode === 'multiple-choice' ? 'Select Answer' : 'Type Answer'}
+                </span>
+
+                {profile.inputMode === 'multiple-choice' ? (
+                  <div className="grid grid-cols-2 gap-2.5 max-w-sm mx-auto pt-1">
+                    {currentQ.options.map((opt, idx) => {
+                      const colors = [
+                        'blox-button-blue',
+                        'blox-button-purple',
+                        'blox-button-yellow',
+                        'blox-button-green',
+                      ];
+                      const colorClass = colors[idx % colors.length];
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleAnswer(opt)}
+                          className={`${colorClass} text-white font-blox text-2xl sm:text-3xl py-3.5 sm:py-4 rounded-2xl shadow-lg border-b-6 flex items-center justify-center cursor-pointer transition-all hover:scale-[1.02] active:translate-y-1`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="max-w-xs mx-auto space-y-2.5 pt-1">
+                    <div className="grid grid-cols-3 gap-2">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'back'].map(
+                        (key) => (
+                          <button
+                            key={key}
+                            onClick={() => handleKeypadPress(key)}
+                            className="h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-blox text-lg border-b-3 border-slate-950 active:translate-y-0.5 active:border-b-0 shadow cursor-pointer"
+                          >
+                            {key === 'clear' ? 'C' : key === 'back' ? '⌫' : key}
+                          </button>
+                        )
+                      )}
+                    </div>
+                    <button
+                      disabled={!keypadInput}
+                      onClick={() => handleAnswer(parseInt(keypadInput, 10))}
+                      className={`w-full py-2.5 rounded-xl font-blox text-base text-white shadow-lg transition-all ${
+                        keypadInput
+                          ? 'blox-button-green cursor-pointer'
+                          : 'bg-slate-700 opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      SUBMIT ANSWER
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

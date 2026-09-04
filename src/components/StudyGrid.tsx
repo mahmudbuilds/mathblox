@@ -18,17 +18,17 @@ export const StudyGrid: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-3 sm:p-5 space-y-4">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-slate-900/60 border-4 border-indigo-500/40 p-4 sm:p-6 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-slate-900/60 border-4 border-indigo-500/40 p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">📐</span>
-            <h2 className="font-blox text-2xl sm:text-3xl text-yellow-300">
+            <span className="text-xl sm:text-2xl">📐</span>
+            <h2 className="font-blox text-xl sm:text-2xl text-yellow-300">
               Interactive 12x12 Matrix
             </h2>
           </div>
-          <p className="text-slate-300 text-sm mt-1 max-w-xl">
+          <p className="text-slate-300 text-xs sm:text-sm mt-0.5 max-w-xl">
             Tap any block in the grid to see how multiplication works with real Roblox blocks,
             repeated addition, and secret memory rhymes!
           </p>
@@ -192,7 +192,7 @@ export const StudyGrid: React.FC = () => {
               </div>
 
               {/* Render Block Array */}
-              <div className="bg-slate-950/80 p-3 rounded-xl border-2 border-slate-800 flex items-center justify-center overflow-auto max-h-56">
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border-2 border-slate-800 flex items-center justify-center overflow-auto max-h-36 sm:max-h-44">
                 <div
                   className="grid gap-1"
                   style={{
