@@ -15,6 +15,7 @@ import { BossBattle } from './components/BossBattle';
 import { PetShop } from './components/PetShop';
 import { AchievementsModal } from './components/AchievementsModal';
 import { AvatarCustomizerModal } from './components/AvatarCustomizerModal';
+import { FloatingPetCompanion } from './components/FloatingPetCompanion';
 
 export const App: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile>(() => storageService.load());
@@ -222,35 +223,43 @@ export const App: React.FC = () => {
   };
 
   // Hatch a Pet
-  const handleHatchPet = (eggType: 'common' | 'rare' | 'mythic', cost: number): Pet | null => {
+  const handleHatchPet = (
+    eggType: 'common' | 'rare' | 'legendary' | 'mythic',
+    cost: number
+  ): Pet | null => {
     if (profile.bloxBux < cost) return null;
 
     let candidatePets: Pet[] = [];
     const roll = Math.random() * 100;
 
     if (eggType === 'common') {
-      if (roll < 70) {
+      if (roll < 75) {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'common');
-      } else if (roll < 95) {
-        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'rare');
       } else {
-        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'epic');
+        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'rare');
       }
     } else if (eggType === 'rare') {
-      if (roll < 35) {
+      if (roll < 30) {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'common');
       } else if (roll < 80) {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'rare');
-      } else if (roll < 97) {
+      } else {
+        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'epic');
+      }
+    } else if (eggType === 'legendary') {
+      if (roll < 10) {
+        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'rare');
+      } else if (roll < 55) {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'epic');
       } else {
-        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'mythic');
+        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'legendary');
       }
     } else {
-      if (roll < 20) {
-        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'rare');
-      } else if (roll < 70) {
+      // Divine Mythic
+      if (roll < 15) {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'epic');
+      } else if (roll < 55) {
+        candidatePets = PET_CATALOG.filter((p) => p.rarity === 'legendary');
       } else {
         candidatePets = PET_CATALOG.filter((p) => p.rarity === 'mythic');
       }
@@ -330,6 +339,43 @@ export const App: React.FC = () => {
     }));
   };
 
+  // Pet Interaction: Feed Pet
+  const handleFeedPet = (xpGained: number) => {
+    updateAndSaveProfile((prev) => {
+      let newXp = prev.xp + xpGained;
+      let newLevel = prev.level;
+      let newXpToNext = prev.xpToNextLevel;
+
+      if (newXp >= newXpToNext) {
+        newLevel += 1;
+        newXp = newXp - newXpToNext;
+        newXpToNext = Math.round(newXpToNext * 1.3);
+        soundService.playFanfare();
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.4 },
+        });
+      }
+
+      return {
+        ...prev,
+        level: newLevel,
+        xp: newXp,
+        xpToNextLevel: newXpToNext,
+      };
+    });
+  };
+
+  // Pet Interaction: Pet Trick
+  const handlePetTrick = (coinsGained: number) => {
+    updateAndSaveProfile((prev) => ({
+      ...prev,
+      bloxBux: prev.bloxBux + coinsGained,
+      totalCoinsEarned: prev.totalCoinsEarned + coinsGained,
+    }));
+  };
+
   // Reset Data
   const handleResetData = () => {
     const fresh = storageService.reset();
@@ -337,7 +383,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-yellow-400 selection:text-black">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-yellow-400 selection:text-black relative">
       {/* Top Header Bar */}
       <Header
         profile={profile}
@@ -416,6 +462,13 @@ export const App: React.FC = () => {
           </span>
         </div>
       </footer>
+
+      {/* Persistent Floating Interactive Pet Companion */}
+      <FloatingPetCompanion
+        profile={profile}
+        onFeedPet={handleFeedPet}
+        onPetTrick={handlePetTrick}
+      />
 
       {/* Avatar Customizer Modal */}
       <AvatarCustomizerModal

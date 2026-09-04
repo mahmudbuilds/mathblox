@@ -80,7 +80,6 @@ class SoundEngine {
     const ctx = this.getContext();
     if (!ctx) return;
     try {
-      // Gentle cartoon "uh oh" / boing down, encouraging and friendly
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
@@ -103,7 +102,6 @@ class SoundEngine {
     const ctx = this.getContext();
     if (!ctx) return;
     try {
-      // Classic coin ping: B5 -> E6
       const now = ctx.currentTime;
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -135,7 +133,6 @@ class SoundEngine {
     const ctx = this.getContext();
     if (!ctx) return;
     try {
-      // Springy pitch bend upward
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -188,7 +185,6 @@ class SoundEngine {
     const ctx = this.getContext();
     if (!ctx) return;
     try {
-      // Crack wobbles then sparkle
       const now = ctx.currentTime;
       for (let i = 0; i < 3; i++) {
         const osc = ctx.createOscillator();
@@ -225,6 +221,83 @@ class SoundEngine {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.2);
+    } catch {
+      // ignore
+    }
+  }
+
+  public playPetHappy() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      // Cute bubbly chirp
+      const now = ctx.currentTime;
+      const pitches = [600, 800, 1100];
+      pitches.forEach((p, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(p, now + idx * 0.06);
+        osc.frequency.exponentialRampToValueAtTime(p * 1.3, now + idx * 0.06 + 0.05);
+
+        gain.gain.setValueAtTime(0.2, now + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.05);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.05);
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  public playPetFeed() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      // Munch munch crunch + sparkle
+      const now = ctx.currentTime;
+      for (let i = 0; i < 2; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320 + i * 40, now + i * 0.09);
+        osc.frequency.exponentialRampToValueAtTime(160, now + i * 0.09 + 0.07);
+
+        gain.gain.setValueAtTime(0.25, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.09 + 0.07);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.07);
+      }
+      setTimeout(() => this.playCoin(), 180);
+    } catch {
+      // ignore
+    }
+  }
+
+  public playPetTrick() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(1200, now + 0.2);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
     } catch {
       // ignore
     }

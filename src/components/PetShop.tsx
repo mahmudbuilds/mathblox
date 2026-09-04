@@ -7,14 +7,14 @@ import { soundService } from '../services/sound';
 
 interface PetShopProps {
   profile: UserProfile;
-  onHatchPet: (eggType: 'common' | 'rare' | 'mythic', cost: number) => Pet | null;
+  onHatchPet: (eggType: 'common' | 'rare' | 'legendary' | 'mythic', cost: number) => Pet | null;
   onEquipPet: (petId: string | null) => void;
   onBuyHat: (hat: HatGear) => boolean;
   onEquipHat: (hatId: string) => void;
 }
 
 interface EggConfig {
-  type: 'common' | 'rare' | 'mythic';
+  type: 'common' | 'rare' | 'legendary' | 'mythic';
   name: string;
   cost: number;
   icon: string;
@@ -29,23 +29,31 @@ const EGGS: EggConfig[] = [
     cost: 50,
     icon: '🥚',
     color: 'from-emerald-600 to-teal-500 border-emerald-400',
-    description: 'Hatch Common & Rare pets (+10% to +35% Blox Bux)',
+    description: 'Hatch Doge, Kitty, Piggy, Dino & more (+10% to +25% Bux)',
   },
   {
     type: 'rare',
-    name: 'Neon Egg',
+    name: 'Neon Cyber Egg',
     cost: 120,
-    icon: '✨',
+    icon: '⚡',
     color: 'from-cyan-600 to-blue-600 border-cyan-400',
-    description: 'High chance of Rare & Epic pets (+35% to +75% Blox Bux)',
+    description: 'Hatch Laser Fox, Volt Hamster, Penguin & more (+30% to +50% Bux)',
+  },
+  {
+    type: 'legendary',
+    name: 'Galaxy Egg',
+    cost: 250,
+    icon: '🌌',
+    color: 'from-purple-600 via-indigo-600 to-blue-700 border-purple-400',
+    description: 'Hatch Thunder Pegasus, Cyber Hydra, Phantom (+60% to 2.4x Bux)',
   },
   {
     type: 'mythic',
-    name: 'Mythic Egg',
-    cost: 250,
+    name: 'Divine Mythic Egg',
+    cost: 500,
     icon: '🔮',
-    color: 'from-purple-600 via-fuchsia-600 to-pink-600 border-yellow-300',
-    description: 'Chance at Cosmic Unicorn & Sun Phoenix (Up to 2.2x Blox Bux!)',
+    color: 'from-fuchsia-600 via-pink-600 to-amber-500 border-yellow-300',
+    description: 'Chance at Cosmic Unicorn, Rainbow Dragon & Diamond Titan (Up to 3.5x Bux!)',
   },
 ];
 
@@ -59,6 +67,7 @@ export const PetShop: React.FC<PetShopProps> = ({
   const [activeTab, setActiveTab] = useState<'eggs' | 'pets' | 'hats'>('eggs');
   const [hatchingState, setHatchingState] = useState<'idle' | 'hatching' | 'revealed'>('idle');
   const [hatchedPet, setHatchedPet] = useState<Pet | null>(null);
+  const [rarityFilter, setRarityFilter] = useState<string>('all');
 
   const handleStartHatch = (egg: EggConfig) => {
     if (profile.bloxBux < egg.cost) {
@@ -77,8 +86,8 @@ export const PetShop: React.FC<PetShopProps> = ({
         setHatchedPet(pet);
         setHatchingState('revealed');
         confetti({
-          particleCount: 120,
-          spread: 80,
+          particleCount: 130,
+          spread: 85,
           origin: { y: 0.6 },
         });
       } else {
@@ -93,6 +102,11 @@ export const PetShop: React.FC<PetShopProps> = ({
     setHatchedPet(null);
   };
 
+  const filteredPets = profile.inventoryPets.filter((pet) => {
+    if (rarityFilter === 'all') return true;
+    return pet.rarity === rarityFilter;
+  });
+
   return (
     <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-6">
       {/* Top Banner */}
@@ -105,7 +119,7 @@ export const PetShop: React.FC<PetShopProps> = ({
             </h2>
           </div>
           <p className="text-slate-300 text-sm mt-1">
-            Spend your hard-earned Blox Bux to hatch multiplier pets and style your avatar with epic gear!
+            Hatch over 30 pets, equip your multiplier companion, and interact with them anywhere!
           </p>
         </div>
 
@@ -155,42 +169,42 @@ export const PetShop: React.FC<PetShopProps> = ({
 
       {/* TAB 1: Egg Hatching Station */}
       {activeTab === 'eggs' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {EGGS.map((egg) => {
             const canAfford = profile.bloxBux >= egg.cost;
 
             return (
               <div
                 key={egg.type}
-                className="blox-card p-6 flex flex-col items-center text-center justify-between space-y-4 hover:border-yellow-400 transition-all group"
+                className="blox-card p-5 flex flex-col items-center text-center justify-between space-y-3 hover:border-yellow-400 transition-all group"
               >
                 <div
-                  className={`w-28 h-36 rounded-full bg-gradient-to-tr ${egg.color} border-4 flex flex-col items-center justify-center shadow-xl group-hover:scale-105 transition-transform relative overflow-hidden`}
+                  className={`w-24 h-32 rounded-full bg-gradient-to-tr ${egg.color} border-4 flex flex-col items-center justify-center shadow-xl group-hover:scale-105 transition-transform relative overflow-hidden`}
                 >
-                  <span className="text-5xl filter drop-shadow">{egg.icon}</span>
+                  <span className="text-4xl filter drop-shadow">{egg.icon}</span>
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
 
                 <div>
-                  <h3 className="font-blox text-2xl text-white">{egg.name}</h3>
-                  <p className="text-xs text-slate-300 mt-1 max-w-xs">{egg.description}</p>
+                  <h3 className="font-blox text-xl text-white">{egg.name}</h3>
+                  <p className="text-[11px] text-slate-300 mt-1">{egg.description}</p>
                 </div>
 
                 <div className="w-full space-y-2">
-                  <div className="flex items-center justify-center gap-1.5 font-blox text-xl text-yellow-400">
+                  <div className="flex items-center justify-center gap-1 font-blox text-lg text-yellow-400">
                     <span>R$</span>
                     <span>{egg.cost} Bux</span>
                   </div>
                   <button
                     disabled={!canAfford}
                     onClick={() => handleStartHatch(egg)}
-                    className={`w-full py-3 rounded-xl font-blox text-base shadow-lg transition-all ${
+                    className={`w-full py-2.5 rounded-xl font-blox text-sm shadow-lg transition-all ${
                       canAfford
                         ? 'blox-button-green text-white cursor-pointer'
                         : 'bg-slate-700 text-slate-400 opacity-60 cursor-not-allowed'
                     }`}
                   >
-                    {canAfford ? 'HATCH EGG' : 'NEED MORE BUX'}
+                    {canAfford ? 'HATCH EGG' : 'NEED BUX'}
                   </button>
                 </div>
               </div>
@@ -202,39 +216,62 @@ export const PetShop: React.FC<PetShopProps> = ({
       {/* TAB 2: My Pets Inventory */}
       {activeTab === 'pets' && (
         <div className="space-y-4">
-          <div className="text-sm font-bold text-slate-300 flex items-center justify-between">
-            <span>Tap any pet to equip it as your multiplier companion!</span>
-            <span className="text-yellow-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <div className="text-xs font-bold text-slate-300">
               Active Multiplier:{' '}
-              {profile.inventoryPets.find((p) => p.id === profile.equippedPetId)
-                ?.coinMultiplier || 1.0}
-              x
-            </span>
+              <span className="text-yellow-400 font-blox text-sm">
+                {profile.inventoryPets.find((p) => p.id === profile.equippedPetId)
+                  ?.coinMultiplier || 1.0}
+                x Blox Bux
+              </span>
+            </div>
+
+            {/* Rarity Filter Chips */}
+            <div className="flex flex-wrap gap-1">
+              {['all', 'common', 'rare', 'epic', 'legendary', 'mythic'].map((rarity) => (
+                <button
+                  key={rarity}
+                  onClick={() => {
+                    soundService.playClick();
+                    setRarityFilter(rarity);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-blox uppercase transition-all ${
+                    rarityFilter === rarity
+                      ? 'bg-yellow-400 text-zinc-950 shadow'
+                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {rarity}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {profile.inventoryPets.map((pet, idx) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            {filteredPets.map((pet, idx) => {
               const isEquipped = profile.equippedPetId === pet.id;
 
               return (
                 <div
                   key={`${pet.id}-${idx}`}
-                  className={`blox-card p-4 flex flex-col items-center text-center justify-between relative transition-all ${
+                  className={`blox-card p-3 sm:p-4 flex flex-col items-center text-center justify-between relative transition-all ${
                     isEquipped ? 'border-yellow-400 ring-4 ring-yellow-400/40' : ''
                   }`}
                 >
                   {isEquipped && (
-                    <span className="absolute top-2 right-2 bg-yellow-400 text-zinc-950 font-blox text-[10px] px-2 py-0.5 rounded-full border border-black shadow">
+                    <span className="absolute top-2 right-2 bg-yellow-400 text-zinc-950 font-blox text-[10px] px-1.5 py-0.5 rounded-full border border-black shadow">
                       EQUIPPED
                     </span>
                   )}
 
                   <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg border-2 border-white/60 my-2 ${
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg border-2 border-white/60 my-1 sm:my-2 ${
                       pet.rarity === 'mythic'
                         ? 'bg-gradient-to-tr from-fuchsia-500 to-pink-500 ring-2 ring-yellow-300'
+                        : pet.rarity === 'legendary'
+                        ? 'bg-gradient-to-tr from-yellow-400 to-amber-500 ring-2 ring-cyan-300'
                         : pet.rarity === 'epic'
-                        ? 'bg-gradient-to-tr from-amber-400 to-yellow-500 ring-2 ring-amber-300'
+                        ? 'bg-gradient-to-tr from-amber-500 to-purple-600 ring-2 ring-amber-300'
                         : pet.rarity === 'rare'
                         ? 'bg-gradient-to-tr from-cyan-400 to-blue-500'
                         : 'bg-gradient-to-tr from-green-400 to-emerald-500'
@@ -244,11 +281,13 @@ export const PetShop: React.FC<PetShopProps> = ({
                   </div>
 
                   <div>
-                    <h4 className="font-blox text-base text-white">{pet.name}</h4>
+                    <h4 className="font-blox text-sm sm:text-base text-white">{pet.name}</h4>
                     <span
-                      className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded ${
+                      className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
                         pet.rarity === 'mythic'
                           ? 'text-fuchsia-300 bg-fuchsia-950'
+                          : pet.rarity === 'legendary'
+                          ? 'text-yellow-300 bg-yellow-950'
                           : pet.rarity === 'epic'
                           ? 'text-amber-300 bg-amber-950'
                           : pet.rarity === 'rare'
@@ -258,8 +297,8 @@ export const PetShop: React.FC<PetShopProps> = ({
                     >
                       {pet.rarity}
                     </span>
-                    <p className="text-xs text-yellow-300 font-extrabold mt-1">
-                      {pet.coinMultiplier}x Blox Bux
+                    <p className="text-xs text-yellow-300 font-extrabold mt-0.5">
+                      {pet.coinMultiplier}x Bux
                     </p>
                   </div>
 
@@ -268,7 +307,7 @@ export const PetShop: React.FC<PetShopProps> = ({
                       soundService.playClick();
                       onEquipPet(isEquipped ? null : pet.id);
                     }}
-                    className={`w-full mt-3 py-1.5 rounded-xl font-blox text-xs shadow transition-all ${
+                    className={`w-full mt-2.5 py-1.5 rounded-xl font-blox text-xs shadow transition-all ${
                       isEquipped
                         ? 'bg-slate-700 hover:bg-slate-600 text-slate-200'
                         : 'blox-button-blue text-white'
@@ -382,8 +421,10 @@ export const PetShop: React.FC<PetShopProps> = ({
                       className={`w-28 h-28 rounded-3xl flex items-center justify-center text-6xl shadow-2xl border-4 border-white animate-bounce ${
                         hatchedPet.rarity === 'mythic'
                           ? 'bg-gradient-to-tr from-fuchsia-500 to-pink-500 ring-4 ring-yellow-400'
+                          : hatchedPet.rarity === 'legendary'
+                          ? 'bg-gradient-to-tr from-yellow-400 to-amber-500 ring-4 ring-cyan-300'
                           : hatchedPet.rarity === 'epic'
-                          ? 'bg-gradient-to-tr from-amber-400 to-yellow-500 ring-4 ring-amber-300'
+                          ? 'bg-gradient-to-tr from-amber-500 to-purple-600 ring-4 ring-amber-300'
                           : hatchedPet.rarity === 'rare'
                           ? 'bg-gradient-to-tr from-cyan-400 to-blue-500'
                           : 'bg-gradient-to-tr from-green-400 to-emerald-500'
