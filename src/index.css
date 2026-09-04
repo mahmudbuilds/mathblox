@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  --font-game: 'Lilita One', cursive, sans-serif;
+  --font-body: 'Fredoka', 'Nunito', sans-serif;
+}
+
+body {
+  font-family: 'Fredoka', 'Nunito', sans-serif;
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+  color: #f8fafc;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+h1, h2, h3, .font-blox {
+  font-family: 'Lilita One', cursive, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+/* Roblox 3D Chunky Button Styles */
+.blox-button-green {
+  background-color: #22c55e;
+  border-bottom: 5px solid #15803d;
+  transition: all 0.08s ease-in-out;
+}
+.blox-button-green:hover {
+  background-color: #16a34a;
+  border-bottom-color: #166534;
+}
+.blox-button-green:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+.blox-button-blue {
+  background-color: #0ea5e9;
+  border-bottom: 5px solid #0369a1;
+  transition: all 0.08s ease-in-out;
+}
+.blox-button-blue:hover {
+  background-color: #0284c7;
+  border-bottom-color: #075985;
+}
+.blox-button-blue:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+.blox-button-yellow {
+  background-color: #eab308;
+  border-bottom: 5px solid #a16207;
+  transition: all 0.08s ease-in-out;
+}
+.blox-button-yellow:hover {
+  background-color: #ca8a04;
+  border-bottom-color: #854d0e;
+}
+.blox-button-yellow:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+.blox-button-red {
+  background-color: #ef4444;
+  border-bottom: 5px solid #b91c1c;
+  transition: all 0.08s ease-in-out;
+}
+.blox-button-red:hover {
+  background-color: #dc2626;
+  border-bottom-color: #991b1b;
+}
+.blox-button-red:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+.blox-button-purple {
+  background-color: #a855f7;
+  border-bottom: 5px solid #7e22ce;
+  transition: all 0.08s ease-in-out;
+}
+.blox-button-purple:hover {
+  background-color: #9333ea;
+  border-bottom-color: #6b21a8;
+}
+.blox-button-purple:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+/* 3D Box Panels with thick borders */
+.blox-card {
+  background: rgba(30, 41, 59, 0.95);
+  border: 4px solid #334155;
+  border-bottom: 8px solid #1e293b;
+  border-radius: 1.25rem;
+}
+
+.blox-card-gold {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
+  border: 4px solid #f59e0b;
+  border-bottom: 8px solid #b45309;
+  border-radius: 1.25rem;
+}
+
+/* Obby Platform Perspective */
+.obby-tile {
+  box-shadow: 0 10px 0 #0f172a, 0 14px 20px rgba(0,0,0,0.5);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.obby-tile:active {
+  transform: translateY(6px);
+  box-shadow: 0 4px 0 #0f172a, 0 6px 10px rgba(0,0,0,0.5);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
