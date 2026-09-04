@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Egg } from 'lucide-react';
+import { Egg, Sparkles } from 'lucide-react';
 import type { UserProfile, Pet, HatGear } from '../types';
 import { HAT_CATALOG } from '../services/storage';
 import { soundService } from '../services/sound';
+import { PetSvg } from './PetSvg';
+import { getPetReactionProfile } from '../services/petReactions';
 
 interface PetShopProps {
   profile: UserProfile;
@@ -68,6 +70,20 @@ export const PetShop: React.FC<PetShopProps> = ({
   const [hatchingState, setHatchingState] = useState<'idle' | 'hatching' | 'revealed'>('idle');
   const [hatchedPet, setHatchedPet] = useState<Pet | null>(null);
   const [rarityFilter, setRarityFilter] = useState<string>('all');
+  const [reactingPetId, setReactingPetId] = useState<string | null>(null);
+
+  const handlePetTouch = (petId: string) => {
+    const reaction = getPetReactionProfile(petId);
+    reaction.triggerSound();
+    setReactingPetId(petId);
+    setTimeout(() => setReactingPetId(null), 750);
+
+    confetti({
+      particleCount: 22,
+      spread: 55,
+      colors: reaction.particleColors,
+    });
+  };
 
   const handleStartHatch = (egg: EggConfig) => {
     if (profile.bloxBux < egg.cost) {
@@ -264,39 +280,60 @@ export const PetShop: React.FC<PetShopProps> = ({
                     </span>
                   )}
 
+                  {/* Full-Body Pet Display on Tactile 3D Pedestal Stage (NOT in a box!) */}
                   <div
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg border-2 border-white/60 my-1 sm:my-2 ${
-                      pet.rarity === 'mythic'
-                        ? 'bg-gradient-to-tr from-fuchsia-500 to-pink-500 ring-2 ring-yellow-300'
-                        : pet.rarity === 'legendary'
-                        ? 'bg-gradient-to-tr from-yellow-400 to-amber-500 ring-2 ring-cyan-300'
-                        : pet.rarity === 'epic'
-                        ? 'bg-gradient-to-tr from-amber-500 to-purple-600 ring-2 ring-amber-300'
-                        : pet.rarity === 'rare'
-                        ? 'bg-gradient-to-tr from-cyan-400 to-blue-500'
-                        : 'bg-gradient-to-tr from-green-400 to-emerald-500'
-                    }`}
+                    onClick={() => handlePetTouch(pet.id)}
+                    className="relative w-full h-24 sm:h-28 flex items-center justify-center my-1 cursor-pointer group/pet"
+                    title={`Tap ${pet.name} to see its unique reaction!`}
                   >
-                    {pet.icon}
+                    {/* Themed Pedestal Stage Ring */}
+                    <div
+                      className={`absolute bottom-1 w-20 sm:w-24 h-6 rounded-full border-2 transition-all group-hover/pet:scale-110 ${
+                        pet.rarity === 'mythic'
+                          ? 'bg-fuchsia-950/70 border-fuchsia-400 shadow-[0_0_12px_rgba(217,70,239,0.5)]'
+                          : pet.rarity === 'legendary'
+                          ? 'bg-amber-950/70 border-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.4)]'
+                          : pet.rarity === 'epic'
+                          ? 'bg-purple-950/70 border-purple-400'
+                          : pet.rarity === 'rare'
+                          ? 'bg-cyan-950/70 border-cyan-400'
+                          : 'bg-slate-950/70 border-slate-700'
+                      }`}
+                    />
+
+                    {/* Full-Body Vector SVG Illustration */}
+                    <PetSvg
+                      petId={pet.id}
+                      size="md"
+                      isReacting={reactingPetId === pet.id}
+                      showGroundShadow={false}
+                      className="z-10 group-hover/pet:scale-110 transition-transform"
+                    />
                   </div>
 
                   <div>
                     <h4 className="font-blox text-sm sm:text-base text-white">{pet.name}</h4>
-                    <span
-                      className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
-                        pet.rarity === 'mythic'
-                          ? 'text-fuchsia-300 bg-fuchsia-950'
-                          : pet.rarity === 'legendary'
-                          ? 'text-yellow-300 bg-yellow-950'
-                          : pet.rarity === 'epic'
-                          ? 'text-amber-300 bg-amber-950'
-                          : pet.rarity === 'rare'
-                          ? 'text-cyan-300 bg-cyan-950'
-                          : 'text-green-300 bg-green-950'
-                      }`}
-                    >
-                      {pet.rarity}
-                    </span>
+                    <div className="flex items-center justify-center gap-1">
+                      <span
+                        className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
+                          pet.rarity === 'mythic'
+                            ? 'text-fuchsia-300 bg-fuchsia-950'
+                            : pet.rarity === 'legendary'
+                            ? 'text-yellow-300 bg-yellow-950'
+                            : pet.rarity === 'epic'
+                            ? 'text-amber-300 bg-amber-950'
+                            : pet.rarity === 'rare'
+                            ? 'text-cyan-300 bg-cyan-950'
+                            : 'text-green-300 bg-green-950'
+                        }`}
+                      >
+                        {pet.rarity}
+                      </span>
+                      <span className="text-[9px] text-slate-400 flex items-center gap-0.5 cursor-pointer hover:text-yellow-300" onClick={() => handlePetTouch(pet.id)}>
+                        <Sparkles className="w-2.5 h-2.5 text-yellow-400" />
+                        <span>Touch</span>
+                      </span>
+                    </div>
                     <p className="text-xs text-yellow-300 font-extrabold mt-0.5">
                       {pet.coinMultiplier}x Bux
                     </p>
@@ -416,21 +453,19 @@ export const PetShop: React.FC<PetShopProps> = ({
                     NEW PET UNLOCKED!
                   </span>
 
-                  <div className="flex justify-center my-4">
-                    <div
-                      className={`w-28 h-28 rounded-3xl flex items-center justify-center text-6xl shadow-2xl border-4 border-white animate-bounce ${
-                        hatchedPet.rarity === 'mythic'
-                          ? 'bg-gradient-to-tr from-fuchsia-500 to-pink-500 ring-4 ring-yellow-400'
-                          : hatchedPet.rarity === 'legendary'
-                          ? 'bg-gradient-to-tr from-yellow-400 to-amber-500 ring-4 ring-cyan-300'
-                          : hatchedPet.rarity === 'epic'
-                          ? 'bg-gradient-to-tr from-amber-500 to-purple-600 ring-4 ring-amber-300'
-                          : hatchedPet.rarity === 'rare'
-                          ? 'bg-gradient-to-tr from-cyan-400 to-blue-500'
-                          : 'bg-gradient-to-tr from-green-400 to-emerald-500'
-                      }`}
-                    >
-                      {hatchedPet.icon}
+                  {/* Full-Body Hatch Reveal on Glowing Pedestal Stage */}
+                  <div className="flex flex-col items-center my-3">
+                    <div className="relative w-36 h-36 flex items-center justify-center">
+                      <div className="absolute bottom-2 w-32 h-8 rounded-full bg-gradient-to-r from-yellow-500/30 via-amber-400/50 to-yellow-500/30 border-2 border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.6)] animate-pulse" />
+                      <PetSvg
+                        petId={hatchedPet.id}
+                        size="2xl"
+                        isReacting={true}
+                        showGroundShadow={false}
+                      />
+                    </div>
+                    <div className="text-xs text-yellow-300 font-black uppercase tracking-wider mt-1 animate-bounce">
+                      * {getPetReactionProfile(hatchedPet.id).actionLabel} *
                     </div>
                   </div>
 

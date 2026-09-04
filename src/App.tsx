@@ -16,12 +16,14 @@ import { PetShop } from './components/PetShop';
 import { AchievementsModal } from './components/AchievementsModal';
 import { AvatarCustomizerModal } from './components/AvatarCustomizerModal';
 import { FloatingPetCompanion } from './components/FloatingPetCompanion';
+import { Sidebar } from './components/Sidebar';
 
 export const App: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile>(() => storageService.load());
   const [currentView, setCurrentView] = useState<GameView>('home');
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState<boolean>(false);
   const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   // Sync sound setting on load
   useEffect(() => {
@@ -389,6 +391,24 @@ export const App: React.FC = () => {
         profile={profile}
         onToggleSound={handleToggleSound}
         onOpenAvatarModal={() => setIsAvatarModalOpen(true)}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
+      />
+
+      {/* Quick Access Sidebar Drawer */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        currentView={currentView}
+        onSelectView={(view) => {
+          if (view === 'achievements') {
+            setIsAchievementsModalOpen(true);
+          } else {
+            setCurrentView(view);
+          }
+        }}
+        profile={profile}
+        onOpenAvatarModal={() => setIsAvatarModalOpen(true)}
+        onToggleSound={handleToggleSound}
       />
 
       {/* Roblox-Style Navigation Bar */}

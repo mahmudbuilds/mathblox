@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UserProfile, Pet } from '../types';
 import { HAT_CATALOG } from '../services/storage';
+import { PetSvg } from './PetSvg';
 
 interface AvatarDisplayProps {
   avatar: UserProfile['avatar'];
@@ -29,33 +30,26 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
 
   return (
     <div className={`relative flex items-center justify-center select-none ${scaleMap[size]} transition-transform`}>
-      {/* Floating Pet Companion */}
+      {/* Full-Body Floating Pet Companion (NOT in a box!) */}
       {showPet && equippedPet && (
         <div
-          className={`absolute -right-14 -top-2 flex flex-col items-center z-30 ${
+          className={`absolute -right-16 -top-2 flex flex-col items-center z-30 ${
             animate ? 'animate-bounce duration-1000' : ''
           }`}
         >
           <div className="relative group">
-            <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg border-2 border-white/80 ${
-                equippedPet.rarity === 'mythic'
-                  ? 'bg-gradient-to-tr from-fuchsia-500 to-pink-500 ring-2 ring-yellow-300'
-                  : equippedPet.rarity === 'epic'
-                  ? 'bg-gradient-to-tr from-amber-400 to-yellow-500 ring-2 ring-amber-300'
-                  : equippedPet.rarity === 'rare'
-                  ? 'bg-gradient-to-tr from-cyan-400 to-blue-500'
-                  : 'bg-gradient-to-tr from-green-400 to-emerald-500'
-              }`}
-            >
-              {equippedPet.icon}
-            </div>
+            {/* Full-Body Vector Pet SVG */}
+            <PetSvg
+              petId={equippedPet.id}
+              size="md"
+              showGroundShadow={true}
+            />
             {/* Multiplier Badge */}
-            <div className="absolute -bottom-2 -right-1 bg-yellow-400 text-zinc-950 font-extrabold text-[10px] px-1.5 py-0.5 rounded-full border border-black shadow">
+            <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-zinc-950 font-black text-[9px] px-1.5 py-0.5 rounded-full border border-black shadow">
               {equippedPet.coinMultiplier}x
             </div>
           </div>
-          <span className="text-[10px] font-bold text-slate-800 bg-white/90 px-1.5 py-0.5 rounded-md mt-1 shadow-sm border border-slate-200 whitespace-nowrap">
+          <span className="text-[10px] font-bold text-slate-800 bg-white/95 px-1.5 py-0.5 rounded-md mt-0.5 shadow-sm border border-slate-200 whitespace-nowrap">
             {equippedPet.name}
           </span>
         </div>

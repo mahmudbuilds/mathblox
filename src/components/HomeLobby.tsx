@@ -203,10 +203,14 @@ export const HomeLobby: React.FC<HomeLobbyProps> = ({
                   soundService.playClick();
                   onNavigate(mode.id);
                 }}
-                className={`w-full py-2.5 rounded-xl font-blox text-sm shadow ${mode.btnColor} flex items-center justify-center gap-2`}
+                className={`w-full py-2.5 rounded-xl font-blox text-sm shadow cursor-pointer transition-all ${mode.btnColor} flex items-center justify-center`}
               >
-                <span>PLAY NOW</span>
-                <span>→</span>
+                {mode.id === 'course' && 'Enter Academy Course'}
+                {mode.id === 'practice' && 'Practice Tables'}
+                {mode.id === 'obby' && 'Run Lava Obby'}
+                {mode.id === 'boss' && 'Battle Glitch Boss'}
+                {mode.id === 'study-grid' && 'Open 12x12 Visualizer'}
+                {mode.id === 'shop' && 'Open Pet Emporium'}
               </button>
             </div>
           ))}

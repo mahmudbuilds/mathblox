@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Flame, User } from 'lucide-react';
+import { Volume2, VolumeX, Flame, User, Menu } from 'lucide-react';
 import type { UserProfile } from '../types';
 import { soundService } from '../services/sound';
 
@@ -7,20 +7,36 @@ interface HeaderProps {
   profile: UserProfile;
   onToggleSound: () => void;
   onOpenAvatarModal: () => void;
+  onOpenSidebar: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   profile,
   onToggleSound,
   onOpenAvatarModal,
+  onOpenSidebar,
 }) => {
   const xpPercent = Math.min(100, Math.round((profile.xp / profile.xpToNextLevel) * 100));
 
   return (
     <header className="sticky top-0 z-40 w-full bg-slate-900/90 backdrop-blur-md border-b-4 border-slate-800 px-3 sm:px-6 py-2.5 shadow-xl">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        {/* Logo & Game Title */}
-        <div className="flex items-center gap-2">
+        {/* Left: Sidebar Toggle & Logo */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Access Sidebar Toggle Button */}
+          <button
+            onClick={() => {
+              soundService.playClick();
+              onOpenSidebar();
+            }}
+            className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-yellow-400 hover:text-yellow-300 border-2 border-slate-700 hover:border-yellow-400/80 shadow-md flex items-center gap-1.5 transition-all cursor-pointer group"
+            title="Open Quick Access Sidebar Menu"
+            aria-label="Open Sidebar Menu"
+          >
+            <Menu className="w-5 h-5 transition-transform group-hover:scale-110" />
+            <span className="font-blox text-xs text-white hidden md:inline tracking-wide">Menu</span>
+          </button>
+
           <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-lg border-2 border-white/20 transform hover:rotate-6 transition-transform">
             <span className="font-blox text-xl sm:text-2xl font-black">✖</span>
           </div>
