@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Flame, RotateCcw } from 'lucide-react';
 import type { UserProfile, Question } from '../types';
@@ -15,7 +15,7 @@ const TOTAL_STAGES = 10;
 
 export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
   const [currentStage, setCurrentStage] = useState<number>(1);
-  const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<Question>(() => generateQuestion());
   const [isJumping, setIsJumping] = useState<boolean>(false);
   const [isWobbling, setIsWobbling] = useState<boolean>(false);
   const [isVictorious, setIsVictorious] = useState<boolean>(false);
@@ -23,10 +23,6 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
 
   const equippedPet = profile.inventoryPets.find((p) => p.id === profile.equippedPetId);
   const multiplier = equippedPet ? equippedPet.coinMultiplier : 1.0;
-
-  useEffect(() => {
-    setActiveQuestion(generateQuestion());
-  }, []);
 
   const handleAnswer = (chosenAnswer: number) => {
     if (!activeQuestion || isJumping || isWobbling || isVictorious) return;

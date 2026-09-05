@@ -113,7 +113,7 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
       setShowHint(false);
     } else {
       setIsRoundOver(true);
-      const finalScore = score + (isCorrect ? 1 : 0);
+      const finalScore = score;
       if (finalScore >= 8) {
         soundService.playFanfare();
         confetti({
@@ -122,7 +122,7 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
           origin: { y: 0.5 },
         });
       }
-      onFinishRound(selectedTable || 1, finalScore, roundQuestions.length);
+      onFinishRound(isMixed ? 0 : (selectedTable || 1), finalScore, roundQuestions.length);
     }
   };
 

@@ -75,7 +75,7 @@ interface CheckpointQuestion {
 
 export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCourseTable }) => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [lessonStep, setLessonStep] = useState<'cheat-code' | 'drill' | 'checkpoint' | 'certified'>('cheat-code');
+  const [lessonStep, setLessonStep] = useState<'cheat-code' | 'drill' | 'checkpoint' | 'certified' | 'checkpoint-retry'>('cheat-code');
 
   // Step 1: Interactive Block Array factor
   const [arrayMultiplier, setArrayMultiplier] = useState<number>(4);
@@ -261,7 +261,7 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
       setCheckpointAnswered(false);
     } else {
       // Checkpoint evaluated
-      const finalScore = checkpointScore + (checkpointIsCorrect ? 1 : 0);
+      const finalScore = checkpointScore;
 
       // Need 4/5 or 5/5 to pass
       if (finalScore >= 4 && selectedTable) {
@@ -274,8 +274,8 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
         setLessonStep('certified');
         onCompleteCourseTable(selectedTable, 50);
       } else {
-        alert(`You scored ${finalScore}/5! You're super close! Let's do a fast review drill to get that Diploma!`);
-        startDrill();
+        soundService.playWrong();
+        setLessonStep('checkpoint-retry');
       }
     }
   };
@@ -685,6 +685,35 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
                 className="blox-button-green text-white font-blox text-base px-8 py-3 rounded-xl shadow-xl cursor-pointer"
               >
                 BACK TO COURSE SYLLABUS
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================= CHECKPOINT RETRY SCREEN ================= */}
+        {lessonStep === 'checkpoint-retry' && (
+          <div className="blox-card p-6 sm:p-10 text-center space-y-5 animate-in zoom-in-95">
+            <div className="text-5xl sm:text-6xl animate-bounce">⚡</div>
+            <h3 className="font-blox text-2xl sm:text-3xl text-amber-300">
+              ALMOST CERTIFIED!
+            </h3>
+            <p className="text-slate-200 font-bold max-w-md mx-auto text-sm sm:text-base">
+              You scored <span className="text-yellow-400 font-black text-xl">{checkpointScore} / 5</span>! You need at least 4/5 correct to graduate Table {selectedTable} and claim your Diploma!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-3">
+              <button
+                onClick={startDrill}
+                className="blox-button-purple text-white font-blox text-sm sm:text-base px-6 py-3 rounded-xl shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                PRACTICE SPEED DRILL
+              </button>
+              <button
+                onClick={startCheckpoint}
+                className="blox-button-yellow text-zinc-950 font-blox text-sm sm:text-base px-6 py-3 rounded-xl shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Zap className="w-4 h-4" />
+                RETRY CHECKPOINT BLITZ
               </button>
             </div>
           </div>

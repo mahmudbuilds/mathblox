@@ -18,7 +18,7 @@ const QUESTION_TIME_LIMIT = 15;
 export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated }) => {
   const [bossHp, setBossHp] = useState<number>(BOSS_MAX_HP);
   const [playerHearts, setPlayerHearts] = useState<number>(3);
-  const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<Question>(() => generateQuestion());
   const [timeLeft, setTimeLeft] = useState<number>(QUESTION_TIME_LIMIT);
   const [isBossHurt, setIsBossHurt] = useState<boolean>(false);
   const [isPlayerAttacking, setIsPlayerAttacking] = useState<boolean>(false);
@@ -28,28 +28,8 @@ export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated 
   const equippedPet = profile.inventoryPets.find((p) => p.id === profile.equippedPetId);
   const multiplier = equippedPet ? equippedPet.coinMultiplier : 1.0;
 
-  useEffect(() => {
-    setActiveQuestion(generateQuestion());
-  }, []);
-
-  useEffect(() => {
-    if (gameState !== 'playing') return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          soundService.playWrong();
-          handleTimeOut();
-          return QUESTION_TIME_LIMIT;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [gameState, activeQuestion]);
-
   const handleTimeOut = () => {
+    soundService.playWrong();
     setPlayerHearts((hearts) => {
       const newHearts = hearts - 1;
       if (newHearts <= 0) {
@@ -60,6 +40,22 @@ export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated 
       return newHearts;
     });
   };
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          handleTimeOut();
+          return QUESTION_TIME_LIMIT;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameState, activeQuestion]);
 
   const handleAnswer = (chosenAnswer: number) => {
     if (!activeQuestion || gameState !== 'playing') return;

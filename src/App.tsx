@@ -171,6 +171,13 @@ export const App: React.FC = () => {
     const stars = correctCount >= 10 ? 3 : correctCount >= 8 ? 2 : correctCount >= 5 ? 1 : 0;
 
     updateAndSaveProfile((prev) => {
+      if (tableNum === 0) {
+        // Mixed round completed: evaluate achievements and save
+        const updatedProfile: UserProfile = { ...prev };
+        updatedProfile.achievements = evaluateAchievements(updatedProfile);
+        return updatedProfile;
+      }
+
       const currentTable = prev.tablesProgress[tableNum];
       if (!currentTable) return prev;
 
