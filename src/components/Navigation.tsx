@@ -26,8 +26,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   ];
 
   return (
-    <nav className="w-full bg-slate-950/80 border-b-2 border-slate-800 px-2 py-2 overflow-x-auto scrollbar-none">
-      <div className="max-w-6xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 min-w-max">
+    <nav className="w-full bg-slate-950/90 border-b-2 border-slate-800 px-2 py-1.5 sm:py-2 overflow-x-auto overscroll-x-contain touch-pan-x select-none">
+      <div className="max-w-6xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 min-w-max px-1">
         {navItems.map((item) => {
           const isActive = currentView === item.id;
           return (
@@ -37,10 +37,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                 soundService.playClick();
                 onSelectView(item.id);
               }}
-              className={`relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl font-blox text-xs sm:text-sm tracking-wide transition-all ${
+              className={`relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 min-h-[42px] sm:min-h-[44px] rounded-xl font-blox text-xs sm:text-sm tracking-wide whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-gradient-to-b from-indigo-500 to-indigo-700 text-white border-b-4 border-indigo-900 shadow-md translate-y-[-1px]'
-                  : 'bg-slate-800/80 text-slate-300 hover:text-white border-b-2 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-800/80 text-slate-300 hover:text-white border-b-2 border-slate-700 hover:border-slate-600 active:bg-slate-700'
               }`}
             >
               {item.icon}
