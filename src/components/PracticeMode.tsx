@@ -260,16 +260,16 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
               </div>
 
               <div className="py-2">
-                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white tracking-wide flex items-center justify-center gap-3 sm:gap-4">
-                  <span className="bg-indigo-600/40 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-indigo-400/40 shadow-inner">
+                <div className="font-blox text-3xl sm:text-5xl lg:text-6xl text-white tracking-wide flex items-center justify-center gap-2 sm:gap-4">
+                  <span className="bg-indigo-600/40 px-2.5 sm:px-5 py-1 sm:py-1.5 rounded-2xl border-2 border-indigo-400/40 shadow-inner">
                     {currentQ.factor1}
                   </span>
-                  <span className="text-amber-400 text-3xl sm:text-4xl">✖</span>
-                  <span className="bg-purple-600/40 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-purple-400/40 shadow-inner">
+                  <span className="text-amber-400 text-2xl sm:text-4xl">✖</span>
+                  <span className="bg-purple-600/40 px-2.5 sm:px-5 py-1 sm:py-1.5 rounded-2xl border-2 border-purple-400/40 shadow-inner">
                     {currentQ.factor2}
                   </span>
-                  <span className="text-slate-400 text-3xl sm:text-4xl">=</span>
-                  <span className="bg-slate-950 px-3.5 sm:px-5 py-1.5 rounded-2xl border-2 border-yellow-400/80 text-yellow-300 min-w-[70px] sm:min-w-[90px] shadow-lg">
+                  <span className="text-slate-400 text-2xl sm:text-4xl">=</span>
+                  <span className="bg-slate-950 px-2.5 sm:px-5 py-1 sm:py-1.5 rounded-2xl border-2 border-yellow-400/80 text-yellow-300 min-w-[55px] sm:min-w-[90px] shadow-lg">
                     {isAnswered
                       ? currentQ.correctAnswer
                       : profile.inputMode === 'keypad'

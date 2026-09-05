@@ -71,7 +71,13 @@ export const StudyGrid: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* The 12x12 Grid Table */}
-        <div className="lg:col-span-8 bg-slate-900/90 border-4 border-slate-800 p-3 sm:p-5 rounded-2xl shadow-xl overflow-x-auto">
+        <div className="lg:col-span-8 bg-slate-900/90 border-4 border-slate-800 p-3 sm:p-5 rounded-2xl shadow-xl overflow-x-auto overscroll-x-contain touch-pan-x">
+          {/* Mobile Swipe Cue */}
+          <div className="flex items-center justify-between text-[11px] text-amber-300/90 font-bold mb-2 sm:hidden px-1">
+            <span>↔ Swipe horizontally to view all 1-12 tables</span>
+            <span className="text-yellow-400">Tap any block!</span>
+          </div>
+
           <div className="min-w-[480px]">
             {/* Header Row (Columns 1-12) */}
             <div className="grid grid-cols-13 gap-1 mb-1">

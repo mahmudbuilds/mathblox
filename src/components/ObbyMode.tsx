@@ -104,7 +104,7 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
               <span className="animate-pulse delay-1000">☁️</span>
             </div>
 
-            <div className="relative z-10 flex items-center justify-between px-1 sm:px-3 w-full my-auto">
+            <div className="relative z-10 flex items-center justify-between px-3 sm:px-6 w-full my-auto">
               {Array.from({ length: TOTAL_STAGES }, (_, i) => i + 1).map((stage) => {
                 const isCurrent = stage === currentStage;
                 const isCompleted = stage < currentStage;
@@ -113,8 +113,8 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
                   <div key={stage} className="relative flex flex-col items-center">
                     {isCurrent && !isVictorious && (
                       <div
-                        className={`absolute -top-20 z-30 transition-all duration-300 ${
-                          isJumping ? '-translate-y-10 scale-110' : isWobbling ? 'rotate-12 translate-x-2' : ''
+                        className={`absolute -top-16 sm:-top-20 z-30 pointer-events-none transition-all duration-300 ${
+                          isJumping ? '-translate-y-8 sm:-translate-y-10 scale-110' : isWobbling ? 'rotate-12 translate-x-2' : ''
                         }`}
                       >
                         <AvatarDisplay
@@ -127,7 +127,7 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
                     )}
 
                     <div
-                      className={`w-7 h-7 sm:w-9 sm:h-9 rounded-lg border-2 flex items-center justify-center font-blox text-[11px] sm:text-xs obby-tile transition-all ${
+                      className={`w-6 h-6 sm:w-9 sm:h-9 rounded-lg border-2 flex items-center justify-center font-blox text-[10px] sm:text-xs obby-tile transition-all ${
                         isCurrent
                           ? 'bg-gradient-to-t from-yellow-500 to-amber-300 text-zinc-950 border-white scale-125 ring-4 ring-yellow-400/60 z-20'
                           : isCompleted
@@ -153,7 +153,7 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
 
             <div className="relative h-9 w-full bg-gradient-to-r from-red-600 via-orange-500 to-amber-600 rounded-b-xl flex items-center justify-around overflow-hidden shadow-inner">
               <div className="absolute inset-0 bg-red-600/30 animate-pulse"></div>
-              <span className="text-[11px] font-black text-amber-200 tracking-widest uppercase z-10">
+              <span className="text-[10px] sm:text-[11px] font-black text-amber-200 tracking-widest uppercase z-10">
                 🔥 DANGER! THE FLOOR IS LAVA! 🔥
               </span>
             </div>
@@ -187,33 +187,33 @@ export const ObbyMode: React.FC<ObbyModeProps> = ({ profile, onObbyWin }) => {
             </div>
           ) : (
             activeQuestion && (
-              <div className="blox-card p-4 sm:p-5 text-center space-y-4 h-full flex flex-col justify-between">
+              <div className="blox-card p-3.5 sm:p-5 text-center space-y-3 sm:space-y-4 h-full flex flex-col justify-between">
                 <div>
                   <span className="inline-block text-[11px] font-black uppercase text-amber-400 bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-800 tracking-wider">
                     Platform {currentStage} Leap Challenge
                   </span>
 
-                  <div className="font-blox text-3xl sm:text-4xl lg:text-5xl text-white flex items-center justify-center gap-3 mt-2">
-                    <span className="bg-indigo-600/40 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                  <div className="font-blox text-3xl sm:text-4xl lg:text-5xl text-white flex items-center justify-center gap-2 sm:gap-3 mt-2">
+                    <span className="bg-indigo-600/40 px-2.5 sm:px-3.5 py-1 rounded-2xl border border-indigo-400">
                       {activeQuestion.factor1}
                     </span>
-                    <span className="text-amber-400">✖</span>
-                    <span className="bg-purple-600/40 px-3.5 py-1 rounded-2xl border border-purple-400">
+                    <span className="text-amber-400 text-2xl sm:text-4xl">✖</span>
+                    <span className="bg-purple-600/40 px-2.5 sm:px-3.5 py-1 rounded-2xl border border-purple-400">
                       {activeQuestion.factor2}
                     </span>
-                    <span className="text-slate-400">=</span>
+                    <span className="text-slate-400 text-2xl sm:text-4xl">=</span>
                     <span className="text-yellow-300">?</span>
                   </div>
                 </div>
 
                 {/* 2x2 Answer Grid */}
-                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 pt-1">
                   {activeQuestion.options.map((option, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleAnswer(option)}
                       disabled={isJumping || isWobbling}
-                      className="blox-button-blue text-white font-blox text-2xl sm:text-3xl py-3 sm:py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 cursor-pointer transition-all hover:scale-[1.02]"
+                      className="blox-button-blue text-white font-blox text-2xl sm:text-3xl py-3 sm:py-4 min-h-[54px] rounded-2xl shadow-lg border-b-4 sm:border-b-6 active:translate-y-1 cursor-pointer transition-all hover:scale-[1.02]"
                     >
                       {option}
                     </button>

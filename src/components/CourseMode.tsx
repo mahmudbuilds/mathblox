@@ -302,39 +302,42 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
           </button>
 
           {/* Step Badges */}
-          <div className="flex bg-slate-950/80 p-1 rounded-xl border border-slate-700 text-xs font-blox">
+          <div className="flex w-full sm:w-auto overflow-x-auto bg-slate-950/80 p-1 rounded-xl border border-slate-700 text-xs font-blox scrollbar-none">
             <button
               onClick={() => {
                 soundService.playClick();
                 setLessonStep('cheat-code');
               }}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                 lessonStep === 'cheat-code'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              1. Cheat Code & Blocks
+              <span className="sm:hidden">1. Trick</span>
+              <span className="hidden sm:inline">1. Cheat Code & Blocks</span>
             </button>
             <button
               onClick={startDrill}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                 lessonStep === 'drill'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              2. Speed Drill
+              <span className="sm:hidden">2. Drill</span>
+              <span className="hidden sm:inline">2. Speed Drill</span>
             </button>
             <button
               onClick={startCheckpoint}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                lessonStep === 'checkpoint' || lessonStep === 'certified'
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
+                lessonStep === 'checkpoint' || lessonStep === 'certified' || lessonStep === 'checkpoint-retry'
                   ? 'bg-yellow-400 text-zinc-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              3. Checkpoint Blitz
+              <span className="sm:hidden">3. Quiz</span>
+              <span className="hidden sm:inline">3. Checkpoint Blitz</span>
             </button>
           </div>
         </div>
@@ -497,16 +500,16 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
                   Quick Recall Blitz
                 </span>
 
-                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white py-3 flex items-center justify-center gap-3">
-                  <span className="bg-indigo-600/50 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                <div className="font-blox text-3xl sm:text-5xl lg:text-6xl text-white py-2 sm:py-3 flex items-center justify-center gap-2 sm:gap-3">
+                  <span className="bg-indigo-600/50 px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-2xl border border-indigo-400">
                     {selectedTable}
                   </span>
-                  <span className="text-yellow-400">✖</span>
-                  <span className="bg-purple-600/50 px-3.5 py-1 rounded-2xl border border-purple-400">
+                  <span className="text-yellow-400 text-2xl sm:text-4xl">✖</span>
+                  <span className="bg-purple-600/50 px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-2xl border border-purple-400">
                     {drillQueue[currentDrillIndex].factor}
                   </span>
-                  <span className="text-slate-400">=</span>
-                  <span className="text-yellow-300">
+                  <span className="text-slate-400 text-2xl sm:text-4xl">=</span>
+                  <span className="text-yellow-300 min-w-[50px] sm:min-w-[70px]">
                     {drillAnswered
                       ? selectedTable * drillQueue[currentDrillIndex].factor
                       : '?'}
@@ -605,16 +608,16 @@ export const CourseMode: React.FC<CourseModeProps> = ({ profile, onCompleteCours
                   Checkpoint Mastery Test
                 </span>
 
-                <div className="font-blox text-4xl sm:text-5xl lg:text-6xl text-white py-3 flex items-center justify-center gap-3">
-                  <span className="bg-indigo-600/40 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                <div className="font-blox text-3xl sm:text-5xl lg:text-6xl text-white py-2 sm:py-3 flex items-center justify-center gap-2 sm:gap-3">
+                  <span className="bg-indigo-600/40 px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-2xl border border-indigo-400">
                     {checkpointQuestions[checkpointIndex].factor1}
                   </span>
-                  <span className="text-amber-400">✖</span>
-                  <span className="bg-purple-600/40 px-3.5 py-1 rounded-2xl border border-purple-400">
+                  <span className="text-amber-400 text-2xl sm:text-4xl">✖</span>
+                  <span className="bg-purple-600/40 px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-2xl border border-purple-400">
                     {checkpointQuestions[checkpointIndex].factor2}
                   </span>
-                  <span className="text-slate-400">=</span>
-                  <span className="text-yellow-300">
+                  <span className="text-slate-400 text-2xl sm:text-4xl">=</span>
+                  <span className="text-yellow-300 min-w-[50px] sm:min-w-[70px]">
                     {checkpointAnswered
                       ? checkpointQuestions[checkpointIndex].correctAnswer
                       : '?'}

@@ -71,6 +71,7 @@ export const PetShop: React.FC<PetShopProps> = ({
   const [hatchedPet, setHatchedPet] = useState<Pet | null>(null);
   const [rarityFilter, setRarityFilter] = useState<string>('all');
   const [reactingPetId, setReactingPetId] = useState<string | null>(null);
+  const [shopNotice, setShopNotice] = useState<string | null>(null);
 
   const handlePetTouch = (petId: string) => {
     const reaction = getPetReactionProfile(petId);
@@ -88,7 +89,8 @@ export const PetShop: React.FC<PetShopProps> = ({
   const handleStartHatch = (egg: EggConfig) => {
     if (profile.bloxBux < egg.cost) {
       soundService.playWrong();
-      alert(`You need ${egg.cost} Blox Bux to buy this egg! Keep practicing to earn more!`);
+      setShopNotice(`Need ${egg.cost} Blox Bux to hatch this egg! Practice math to earn more coins!`);
+      setTimeout(() => setShopNotice(null), 3500);
       return;
     }
 
@@ -124,29 +126,29 @@ export const PetShop: React.FC<PetShopProps> = ({
   });
 
   return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-pink-900/60 via-purple-900/60 to-slate-900/60 border-4 border-pink-500/50 p-4 sm:p-6 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Egg className="w-8 h-8 text-yellow-300 animate-bounce" />
-            <h2 className="font-blox text-2xl sm:text-3xl text-yellow-300">
+            <Egg className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-300 animate-bounce" />
+            <h2 className="font-blox text-xl sm:text-3xl text-yellow-300">
               Roblox Pet & Gear Emporium
             </h2>
           </div>
-          <p className="text-slate-300 text-sm mt-1">
+          <p className="text-slate-300 text-xs sm:text-sm mt-1">
             Hatch over 30 pets, equip your multiplier companion, and interact with them anywhere!
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex bg-slate-950/80 p-1 rounded-2xl border-2 border-slate-700">
+        <div className="flex w-full sm:w-auto bg-slate-950/80 p-1 rounded-2xl border-2 border-slate-700 text-center">
           <button
             onClick={() => {
               soundService.playClick();
               setActiveTab('eggs');
             }}
-            className={`px-4 py-2 rounded-xl font-blox text-xs sm:text-sm transition-all ${
+            className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-blox text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'eggs'
                 ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-zinc-950 shadow'
                 : 'text-slate-400 hover:text-white'
@@ -159,29 +161,39 @@ export const PetShop: React.FC<PetShopProps> = ({
               soundService.playClick();
               setActiveTab('pets');
             }}
-            className={`px-4 py-2 rounded-xl font-blox text-xs sm:text-sm transition-all ${
+            className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-blox text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'pets'
                 ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-zinc-950 shadow'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            🐾 My Pets ({profile.inventoryPets.length})
+            🐾 Pets ({profile.inventoryPets.length})
           </button>
           <button
             onClick={() => {
               soundService.playClick();
               setActiveTab('hats');
             }}
-            className={`px-4 py-2 rounded-xl font-blox text-xs sm:text-sm transition-all ${
+            className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-blox text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'hats'
                 ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-zinc-950 shadow'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            🧢 Avatar Hats
+            🧢 Hats
           </button>
         </div>
       </div>
+
+      {/* In-app Shop Notice Banner */}
+      {shopNotice && (
+        <div className="bg-amber-950/90 border-2 border-amber-400 p-3 rounded-2xl text-xs font-bold text-yellow-200 animate-in fade-in slide-in-from-top-2 flex items-center justify-between gap-2 shadow-lg">
+          <span>💡 {shopNotice}</span>
+          <button onClick={() => setShopNotice(null)} className="text-slate-400 hover:text-white text-sm px-1 cursor-pointer">
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* TAB 1: Egg Hatching Station */}
       {activeTab === 'eggs' && (

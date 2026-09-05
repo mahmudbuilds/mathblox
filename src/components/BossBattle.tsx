@@ -173,19 +173,29 @@ export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated 
                   isPlayerAttacking ? 'translate-x-12 scale-110' : ''
                 }`}
               >
-                <AvatarDisplay
-                  avatar={profile.avatar}
-                  equippedPet={equippedPet}
-                  size="lg"
-                  showPet={true}
-                />
+                <div className="sm:hidden">
+                  <AvatarDisplay
+                    avatar={profile.avatar}
+                    equippedPet={equippedPet}
+                    size="md"
+                    showPet={true}
+                  />
+                </div>
+                <div className="hidden sm:block">
+                  <AvatarDisplay
+                    avatar={profile.avatar}
+                    equippedPet={equippedPet}
+                    size="lg"
+                    showPet={true}
+                  />
+                </div>
                 <span className="block text-center font-blox text-xs text-cyan-300 mt-2">
                   {profile.username}
                 </span>
               </div>
 
               {isPlayerAttacking && (
-                <div className="text-5xl animate-ping absolute z-20">⚡</div>
+                <div className="text-4xl sm:text-5xl animate-ping absolute z-20">⚡</div>
               )}
 
               <div
@@ -193,7 +203,7 @@ export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated 
                   isBossHurt ? 'translate-x-4 scale-95 brightness-200 filter hue-rotate-90' : 'animate-bounce'
                 }`}
               >
-                <div className="relative">
+                <div className="relative scale-90 sm:scale-100 transition-transform">
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                     <div className="w-5 h-8 bg-amber-700 border-2 border-amber-950 rounded-t-md rotate-[-15deg]"></div>
                     <div className="w-6 h-9 bg-amber-600 border-2 border-amber-950 rounded-t-md"></div>
@@ -289,31 +299,31 @@ export const BossBattle: React.FC<BossBattleProps> = ({ profile, onBossDefeated 
           )}
 
           {gameState === 'playing' && activeQuestion && (
-            <div className="blox-card p-4 sm:p-5 text-center space-y-4 h-full flex flex-col justify-between">
+            <div className="blox-card p-3.5 sm:p-5 text-center space-y-3 sm:space-y-4 h-full flex flex-col justify-between">
               <div>
                 <span className="inline-block text-[11px] font-black uppercase tracking-wider text-rose-400 bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-800">
                   Target Boss Weakness
                 </span>
-                <div className="font-blox text-3xl sm:text-4xl lg:text-5xl text-white flex items-center justify-center gap-3 mt-2">
-                  <span className="bg-indigo-600/40 px-3.5 py-1 rounded-2xl border border-indigo-400">
+                <div className="font-blox text-3xl sm:text-4xl lg:text-5xl text-white flex items-center justify-center gap-2 sm:gap-3 mt-2">
+                  <span className="bg-indigo-600/40 px-2.5 sm:px-3.5 py-1 rounded-2xl border border-indigo-400">
                     {activeQuestion.factor1}
                   </span>
-                  <span className="text-rose-400">✖</span>
-                  <span className="bg-purple-600/40 px-3.5 py-1 rounded-2xl border border-purple-400">
+                  <span className="text-rose-400 text-2xl sm:text-4xl">✖</span>
+                  <span className="bg-purple-600/40 px-2.5 sm:px-3.5 py-1 rounded-2xl border border-purple-400">
                     {activeQuestion.factor2}
                   </span>
-                  <span className="text-slate-400">=</span>
+                  <span className="text-slate-400 text-2xl sm:text-4xl">=</span>
                   <span className="text-yellow-300">?</span>
                 </div>
               </div>
 
               {/* 2x2 Answer Buttons Grid */}
-              <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5 pt-1">
                 {activeQuestion.options.map((opt, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleAnswer(opt)}
-                    className="blox-button-purple text-white font-blox text-2xl sm:text-3xl py-3 sm:py-4 rounded-2xl shadow-lg border-b-6 active:translate-y-1 cursor-pointer transition-all hover:scale-[1.02]"
+                    className="blox-button-purple text-white font-blox text-2xl sm:text-3xl py-3 sm:py-4 min-h-[54px] rounded-2xl shadow-lg border-b-4 sm:border-b-6 active:translate-y-1 cursor-pointer transition-all hover:scale-[1.02]"
                   >
                     {opt}
                   </button>
